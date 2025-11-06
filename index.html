@@ -1,331 +1,720 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employee Data Collection Form</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      box-sizing: border-box;
-    }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-  </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
- </head>
- <body class="min-h-full bg-gray-50">
-  <div class="min-h-full p-4 md:p-6">
-   <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
-     <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Employee Data Collection Form</h1>
-     <p class="text-gray-600 mb-6">Please fill in the information you have available</p>
-     <form id="employeeForm" class="space-y-6"><!-- Personal Information -->
-      <div class="border-b border-gray-200 pb-4">
-       <h2 class="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="employee_name" class="block text-sm font-medium text-gray-700 mb-1">Employee Name (As per Aadhar)</label> <input type="text" id="employee_name" name="employee_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label> <input type="date" id="date_of_birth" name="date_of_birth" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="blood_group" class="block text-sm font-medium text-gray-700 mb-1">Blood Group</label> <select id="blood_group" name="blood_group" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">Select Blood Group</option> <option value="A+">A+</option> <option value="A-">A-</option> <option value="B+">B+</option> <option value="B-">B-</option> <option value="AB+">AB+</option> <option value="AB-">AB-</option> <option value="O+">O+</option> <option value="O-">O-</option> </select>
-        </div>
-        <div><label for="marital_status" class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label> <select id="marital_status" name="marital_status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">Select Status</option> <option value="Single">Single</option> <option value="Married">Married</option> <option value="Divorced">Divorced</option> <option value="Widowed">Widowed</option> </select>
-        </div>
-        <div><label for="aadhar_no" class="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label> <input type="text" id="aadhar_no" name="aadhar_no" maxlength="12" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-       <div class="mt-4"><label for="permanent_address" class="block text-sm font-medium text-gray-700 mb-1">Permanent Address</label> <textarea id="permanent_address" name="permanent_address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-       </div>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div><label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label> <input type="text" id="state" name="state" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="contact_no" class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label> <input type="tel" id="contact_no" name="contact_no" maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-      </div><!-- Family Information -->
-      <div class="border-b border-gray-200 pb-4">
-       <h2 class="text-xl font-semibold text-gray-900 mb-4">Family Information</h2>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="father_name" class="block text-sm font-medium text-gray-700 mb-1">Father Name</label> <input type="text" id="father_name" name="father_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="father_dob" class="block text-sm font-medium text-gray-700 mb-1">Father Date of Birth</label> <input type="date" id="father_dob" name="father_dob" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="mother_name" class="block text-sm font-medium text-gray-700 mb-1">Mother Name</label> <input type="text" id="mother_name" name="mother_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="mother_dob" class="block text-sm font-medium text-gray-700 mb-1">Mother Date of Birth</label> <input type="date" id="mother_dob" name="mother_dob" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-       <div id="marriageFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" style="display: none;">
-        <div><label for="date_of_marriage" class="block text-sm font-medium text-gray-700 mb-1">Date of Marriage</label> <input type="date" id="date_of_marriage" name="date_of_marriage" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="wife_name" class="block text-sm font-medium text-gray-700 mb-1">Wife Name</label> <input type="text" id="wife_name" name="wife_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="wife_dob" class="block text-sm font-medium text-gray-700 mb-1">Wife Date of Birth</label> <input type="date" id="wife_dob" name="wife_dob" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="no_children" class="block text-sm font-medium text-gray-700 mb-1">Number of Children</label> <select id="no_children" name="no_children" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="0">0</option> <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> </select>
-        </div>
-       </div>
-       <div id="childrenFields" class="mt-4" style="display: none;"></div>
-      </div><!-- Emergency Contact -->
-      <div class="border-b border-gray-200 pb-4">
-       <h2 class="text-xl font-semibold text-gray-900 mb-4">Emergency Contact</h2>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="name_of_emergency_contact" class="block text-sm font-medium text-gray-700 mb-1">Name of Emergency Contact</label> <input type="text" id="name_of_emergency_contact" name="name_of_emergency_contact" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="emergency_contact_no" class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Number</label> <input type="tel" id="emergency_contact_no" name="emergency_contact_no" maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="employee_relation_emergency" class="block text-sm font-medium text-gray-700 mb-1">Relationship with Emergency Contact</label> <input type="text" id="employee_relation_emergency" name="employee_relation_emergency" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-      </div><!-- Bank & Official Details -->
-      <div class="border-b border-gray-200 pb-4">
-       <h2 class="text-xl font-semibold text-gray-900 mb-4">Bank &amp; Official Details</h2>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="bank_name" class="block text-sm font-medium text-gray-700 mb-1">Bank Name</label> <input type="text" id="bank_name" name="bank_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="account_no" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label> <input type="text" id="account_no" name="account_no" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="ifsc_code" class="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label> <input type="text" id="ifsc_code" name="ifsc_code" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="uan_number" class="block text-sm font-medium text-gray-700 mb-1">UAN Number</label> <input type="text" id="uan_number" name="uan_number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="esi_no" class="block text-sm font-medium text-gray-700 mb-1">ESI No / WC Policy</label> <input type="text" id="esi_no" name="esi_no" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-      </div><!-- Education & Experience -->
-      <div class="border-b border-gray-200 pb-4">
-       <h2 class="text-xl font-semibold text-gray-900 mb-4">Education &amp; Experience</h2>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="education" class="block text-sm font-medium text-gray-700 mb-1">Education</label> <input type="text" id="education" name="education" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="scaffolding_experience" class="block text-sm font-medium text-gray-700 mb-1">Scaffolding Work Experience</label> <input type="text" id="scaffolding_experience" name="scaffolding_experience" placeholder="e.g., 5 years" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-      </div><!-- Document Upload -->
-      <div class="pb-4">
-       <h2 class="text-xl font-semibold text-gray-900 mb-4">Document Upload</h2>
-       <p class="text-sm text-gray-600 mb-4">Please upload any documents you have available</p>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="aadhar_front" class="block text-sm font-medium text-gray-700 mb-1">Aadhar Front</label> <input type="file" id="aadhar_front" name="aadhar_front" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="aadhar_back" class="block text-sm font-medium text-gray-700 mb-1">Aadhar Back</label> <input type="file" id="aadhar_back" name="aadhar_back" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="bank_passbook" class="block text-sm font-medium text-gray-700 mb-1">Bank Passbook</label> <input type="file" id="bank_passbook" name="bank_passbook" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div><label for="passport_photo" class="block text-sm font-medium text-gray-700 mb-1">Passport Size Photo</label> <input type="file" id="passport_photo" name="passport_photo" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-       </div>
-      </div>
-      <div id="statusMessage" class="hidden p-4 rounded-md mb-4"></div><button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md font-semibold transition-colors"> Submit Application </button>
-     </form>
-    </div>
-   </div>
-  </div>
-  <script>
-    // Google Apps Script web app URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfzu16CY8Z2SV0MZY2Lpv835pf6b9VuNubI3tUpGKKyQSgdN7REzaw4-00vE_6wxlH/exec';
-    
-    let isSubmitting = false;
-
-    function setupFormHandlers() {
-      const form = document.getElementById('employeeForm');
-      const maritalStatus = document.getElementById('marital_status');
-      const marriageFields = document.getElementById('marriageFields');
-      const noChildren = document.getElementById('no_children');
-      const childrenFields = document.getElementById('childrenFields');
-
-      maritalStatus.addEventListener('change', (e) => {
-        if (e.target.value === 'Married') {
-          marriageFields.style.display = 'grid';
-        } else {
-          marriageFields.style.display = 'none';
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Data Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      });
 
-      noChildren.addEventListener('change', (e) => {
-        const count = parseInt(e.target.value);
-        if (count > 0) {
-          childrenFields.style.display = 'block';
-          renderChildrenFields(count);
-        } else {
-          childrenFields.style.display = 'none';
-          childrenFields.innerHTML = '';
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-      });
 
-      form.addEventListener('submit', handleSubmit);
-    }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
 
-    function renderChildrenFields(count) {
-      const childrenFields = document.getElementById('childrenFields');
-      let html = '<div class="grid grid-cols-1 gap-4">';
-      
-      for (let i = 1; i <= count; i++) {
-        html += `
-          <div class="border border-gray-200 rounded-md p-4">
-            <h3 class="font-semibold text-gray-900 mb-3">Child ${i}</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label for="child${i}_name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" id="child${i}_name" name="child${i}_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-              <div>
-                <label for="child${i}_gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                <select id="child${i}_gender" name="child${i}_gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">Select</option>
-                  <option value="Son">Son</option>
-                  <option value="Daughter">Daughter</option>
-                </select>
-              </div>
-              <div>
-                <label for="child${i}_dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                <input type="date" id="child${i}_dob" name="child${i}_dob" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 30px 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e74c3c;
+            margin-left: 2px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: #e8eaf6;
+            border-color: #764ba2;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            max-width: 150px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .children-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .child-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message,
+        .error-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .form-container {
+                padding: 20px 15px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Employee Data Form</h1>
+            <p>Please fill in all required information</p>
+        </div>
+
+        <div class="form-container">
+            <div class="success-message" id="successMessage">
+                ✓ Form submitted successfully! Data has been recorded.
             </div>
-          </div>
-        `;
-      }
-      
-      html += '</div>';
-      childrenFields.innerHTML = html;
-    }
+            <div class="error-message" id="errorMessage"></div>
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Submitting your data...</p>
+            </div>
 
-    async function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
+            <form id="employeeForm">
+                <!-- Personal Information -->
+                <div class="section">
+                    <div class="section-title">Personal Information</div>
+                    
+                    <div class="form-group">
+                        <label>Employee Name (As per Aadhar) <span class="required">*</span></label>
+                        <input type="text" name="employeeName" required>
+                    </div>
 
-    async function handleSubmit(e) {
-      e.preventDefault();
-      
-      if (isSubmitting) return;
-      
-      const submitBtn = document.getElementById('submitBtn');
-      const statusMessage = document.getElementById('statusMessage');
-      
-      isSubmitting = true;
-      submitBtn.disabled = true;
-      submitBtn.classList.add('loading');
-      submitBtn.textContent = 'Submitting...';
-      
-      try {
-        const formData = new FormData(e.target);
-        const data = {};
+                    <div class="form-group">
+                        <label>Date of Birth <span class="required">*</span></label>
+                        <input type="date" name="dob" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Blood Group <span class="required">*</span></label>
+                        <select name="bloodGroup" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marital Status <span class="required">*</span></label>
+                        <select name="maritalStatus" id="maritalStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Aadhar Number <span class="required">*</span></label>
+                        <input type="text" name="aadharNumber" pattern="[0-9]{12}" maxlength="12" placeholder="12 digit number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email ID <span class="required">*</span></label>
+                        <input type="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact Number <span class="required">*</span></label>
+                        <input type="tel" name="contactNumber" pattern="[0-9]{10}" maxlength="10" placeholder="10 digit number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>State <span class="required">*</span></label>
+                        <input type="text" name="state" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Permanent Address <span class="required">*</span></label>
+                        <textarea name="permanentAddress" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Family Information -->
+                <div class="section">
+                    <div class="section-title">Family Information</div>
+                    
+                    <div class="form-group">
+                        <label>Father's Name <span class="required">*</span></label>
+                        <input type="text" name="fatherName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Father's Date of Birth</label>
+                        <input type="date" name="fatherDob">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mother's Name <span class="required">*</span></label>
+                        <input type="text" name="motherName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mother's Date of Birth</label>
+                        <input type="date" name="motherDob">
+                    </div>
+
+                    <div id="marriageSection" style="display: none;">
+                        <div class="form-group">
+                            <label>Date of Marriage</label>
+                            <input type="date" name="marriageDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Wife's Name</label>
+                            <input type="text" name="wifeName">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Wife's Date of Birth</label>
+                            <input type="date" name="wifeDob">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Number of Children</label>
+                            <select name="numberOfChildren" id="numberOfChildren">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+
+                        <div id="childrenSection"></div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact -->
+                <div class="section">
+                    <div class="section-title">Emergency Contact</div>
+                    
+                    <div class="form-group">
+                        <label>Emergency Contact Name <span class="required">*</span></label>
+                        <input type="text" name="emergencyContactName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Emergency Contact Number <span class="required">*</span></label>
+                        <input type="tel" name="emergencyContactNumber" pattern="[0-9]{10}" maxlength="10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Relationship with Emergency Contact <span class="required">*</span></label>
+                        <input type="text" name="emergencyRelationship" placeholder="e.g., Spouse, Parent, Sibling" required>
+                    </div>
+                </div>
+
+                <!-- Bank Details -->
+                <div class="section">
+                    <div class="section-title">Bank Details</div>
+                    
+                    <div class="form-group">
+                        <label>Bank Name <span class="required">*</span></label>
+                        <input type="text" name="bankName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Account Number <span class="required">*</span></label>
+                        <input type="text" name="accountNumber" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>IFSC Code <span class="required">*</span></label>
+                        <input type="text" name="ifscCode" pattern="[A-Z]{4}0[A-Z0-9]{6}" maxlength="11" placeholder="e.g., SBIN0001234" required>
+                    </div>
+                </div>
+
+                <!-- Employment Details -->
+                <div class="section">
+                    <div class="section-title">Employment Details</div>
+                    
+                    <div class="form-group">
+                        <label>UAN Number</label>
+                        <input type="text" name="uanNumber" pattern="[0-9]{12}" maxlength="12" placeholder="12 digit number">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ESI Number / WC Policy</label>
+                        <input type="text" name="esiNumber">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Education <span class="required">*</span></label>
+                        <select name="education" required>
+                            <option value="">Select Education</option>
+                            <option value="Below 10th">Below 10th</option>
+                            <option value="10th Pass">10th Pass</option>
+                            <option value="12th Pass">12th Pass</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Graduate">Graduate</option>
+                            <option value="Post Graduate">Post Graduate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Scaffolding Work Experience (in years) <span class="required">*</span></label>
+                        <input type="number" name="workExperience" min="0" step="0.5" required>
+                    </div>
+                </div>
+
+                <!-- Document Uploads -->
+                <div class="section">
+                    <div class="section-title">Document Uploads</div>
+                    <p class="info-text">Please upload clear images of your documents (JPG, PNG, or PDF - max 5MB each)</p>
+                    
+                    <div class="form-group">
+                        <label>Aadhar Front <span class="required">*</span></label>
+                        <div class="file-upload">
+                            <input type="file" id="aadharFront" name="aadharFront" accept="image/*,.pdf" required>
+                            <label for="aadharFront" class="file-upload-label">
+                                📄 Choose File
+                            </label>
+                            <div class="file-name" id="aadharFrontName"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Aadhar Back <span class="required">*</span></label>
+                        <div class="file-upload">
+                            <input type="file" id="aadharBack" name="aadharBack" accept="image/*,.pdf" required>
+                            <label for="aadharBack" class="file-upload-label">
+                                📄 Choose File
+                            </label>
+                            <div class="file-name" id="aadharBackName"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bank Passbook <span class="required">*</span></label>
+                        <div class="file-upload">
+                            <input type="file" id="bankPassbook" name="bankPassbook" accept="image/*,.pdf" required>
+                            <label for="bankPassbook" class="file-upload-label">
+                                📄 Choose File
+                            </label>
+                            <div class="file-name" id="bankPassbookName"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Passport Size Photo <span class="required">*</span></label>
+                        <div class="file-upload">
+                            <input type="file" id="passportPhoto" name="passportPhoto" accept="image/*" required>
+                            <label for="passportPhoto" class="file-upload-label">
+                                📷 Choose Photo
+                            </label>
+                            <div class="file-name" id="passportPhotoName"></div>
+                            <img id="photoPreview" class="file-preview" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Form</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Marital status change handler
+        document.getElementById('maritalStatus').addEventListener('change', function() {
+            const marriageSection = document.getElementById('marriageSection');
+            if (this.value === 'Married') {
+                marriageSection.style.display = 'block';
+            } else {
+                marriageSection.style.display = 'none';
+            }
+        });
+
+        // Number of children change handler
+        document.getElementById('numberOfChildren').addEventListener('change', function() {
+            const childrenSection = document.getElementById('childrenSection');
+            const numChildren = parseInt(this.value);
+            childrenSection.innerHTML = '';
+
+            if (numChildren > 0) {
+                childrenSection.innerHTML = '<div class="children-section">';
+                for (let i = 1; i <= numChildren; i++) {
+                    childrenSection.innerHTML += `
+                        <div class="child-group">
+                            <h4 style="margin-bottom: 15px; color: #667eea;">Child ${i}</h4>
+                            <div class="form-group">
+                                <label>Child ${i} Name</label>
+                                <input type="text" name="child${i}Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Child ${i} Gender</label>
+                                <select name="child${i}Gender">
+                                    <option value="">Select Gender</option>
+                                    <option value="Son">Son</option>
+                                    <option value="Daughter">Daughter</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Child ${i} Date of Birth</label>
+                                <input type="date" name="child${i}Dob">
+                            </div>
+                        </div>
+                    `;
+                }
+                childrenSection.innerHTML += '</div>';
+            }
+        });
+
+        // File upload handlers
+        const fileInputs = ['aadharFront', 'aadharBack', 'bankPassbook', 'passportPhoto'];
+        fileInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            const nameDisplay = document.getElementById(inputId + 'Name');
+            
+            input.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    // Check file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB');
+                        this.value = '';
+                        nameDisplay.textContent = '';
+                        return;
+                    }
+                    
+                    nameDisplay.textContent = '✓ ' + file.name;
+                    
+                    // Preview for passport photo
+                    if (inputId === 'passportPhoto') {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = document.getElementById('photoPreview');
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('.submit-btn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Hide previous messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loadingIndicator.style.display = 'block';
+            
+            try {
+                // Collect form data
+                const formData = new FormData(form);
+                const data = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    if (value instanceof File) {
+                        // Convert file to base64
+                        data[key] = await fileToBase64(value);
+                        data[key + '_filename'] = value.name;
+                    } else {
+                        data[key] = value;
+                    }
+                }
+                
+                // Send data to Google Apps Script
+                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQTLyQwYGUKT8qbA-YhvTIezGKmdd71zLTDOAuVGNJnZGTNK-lwSZasFDcNTqPXVUWKw/exec'; // Replace with your deployed script URL
+                
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Note: With no-cors mode, we can't read the response
+                // But we'll assume success if no error was thrown
+                console.log('Data sent successfully');
+                
+                // Show success message
+                loadingIndicator.style.display = 'none';
+                successMessage.style.display = 'block';
+                
+                // Reset form
+                form.reset();
+                
+                // Clear file name displays
+                fileInputs.forEach(inputId => {
+                    document.getElementById(inputId + 'Name').textContent = '';
+                });
+                document.getElementById('photoPreview').style.display = 'none';
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+                
+            } catch (error) {
+                loadingIndicator.style.display = 'none';
+                errorMessage.textContent = '✗ Error submitting form: ' + error.message;
+                errorMessage.style.display = 'block';
+                console.error('Submission error:', error);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
         
-        // Process form data - skip files for now to avoid size issues
-        for (let [key, value] of formData.entries()) {
-          if (value instanceof File && value.size > 0) {
-            // Store file info but not the actual file data to avoid payload size issues
-            data[key + '_filename'] = value.name;
-            data[key + '_size'] = value.size;
-            data[key + '_type'] = value.type;
-            data[key] = `[FILE: ${value.name} (${Math.round(value.size/1024)}KB)]`;
-          } else {
-            data[key] = value;
-          }
+        // Helper function to convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
-        
-        data.submission_date = new Date().toISOString();
-        data.serial_number = Date.now();
-        
-        // Use a more robust submission method
-        const submitData = async () => {
-          try {
-            // Method 1: Try with fetch
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(data)
-            });
-            return { success: true, method: 'fetch' };
-          } catch (fetchError) {
-            // Method 2: Try with form submission
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = GOOGLE_SCRIPT_URL;
-            form.target = '_blank';
-            form.style.display = 'none';
-            
-            // Add data as hidden inputs
-            Object.keys(data).forEach(key => {
-              const input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = data[key];
-              form.appendChild(input);
-            });
-            
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
-            
-            return { success: true, method: 'form' };
-          }
-        };
-        
-        await submitData();
-        
-        statusMessage.className = 'p-4 rounded-md mb-4 bg-green-100 border border-green-400';
-        statusMessage.innerHTML = `
-          <div class="text-green-800">
-            <strong>Success!</strong> Your employee data has been submitted successfully. 
-            <br><small>Note: File uploads are recorded but actual files need to be uploaded separately to Google Drive.</small>
-          </div>
-        `;
-        statusMessage.classList.remove('hidden');
-        
-        // Reset form
-        e.target.reset();
-        document.getElementById('marriageFields').style.display = 'none';
-        document.getElementById('childrenFields').style.display = 'none';
-        
-        // Hide success message after 8 seconds
-        setTimeout(() => {
-          statusMessage.classList.add('hidden');
-        }, 8000);
-        
-      } catch (error) {
-        statusMessage.className = 'p-4 rounded-md mb-4 bg-red-100 border border-red-400';
-        statusMessage.innerHTML = `
-          <div class="text-red-800">
-            <strong>Error:</strong> Unable to submit data. Please check your internet connection and try again.
-            <br><small>If the problem persists, please contact your administrator.</small>
-          </div>
-        `;
-        statusMessage.classList.remove('hidden');
-      } finally {
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('loading');
-        submitBtn.textContent = 'Submit Application';
-      }
-    }
-
-    // Initialize the form when page loads
-    document.addEventListener('DOMContentLoaded', setupFormHandlers);
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a3794f025ab29a',t:'MTc2MjQyMDM5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    </script>
+</body>
 </html>
