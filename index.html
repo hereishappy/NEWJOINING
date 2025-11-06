@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Data Collection Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="min-h-full bg-gray-50">
+  <div class="min-h-full p-4 md:p-6">
+   <div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
+     <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Employee Data Collection Form</h1>
+     <p class="text-gray-600 mb-6">Please fill in all required information</p>
+     <form id="employeeForm" class="space-y-6"><!-- Personal Information -->
+      <div class="border-b border-gray-200 pb-4">
+       <h2 class="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label for="employee_name" class="block text-sm font-medium text-gray-700 mb-1">Employee Name (As per Aadhar) *</label> <input type="text" id="employee_name" name="employee_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label> <input type="date" id="date_of_birth" name="date_of_birth" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="blood_group" class="block text-sm font-medium text-gray-700 mb-1">Blood Group *</label> <select id="blood_group" name="blood_group" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">Select Blood Group</option> <option value="A+">A+</option> <option value="A-">A-</option> <option value="B+">B+</option> <option value="B-">B-</option> <option value="AB+">AB+</option> <option value="AB-">AB-</option> <option value="O+">O+</option> <option value="O-">O-</option> </select>
+        </div>
+        <div><label for="marital_status" class="block text-sm font-medium text-gray-700 mb-1">Marital Status *</label> <select id="marital_status" name="marital_status" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">Select Status</option> <option value="Single">Single</option> <option value="Married">Married</option> <option value="Divorced">Divorced</option> <option value="Widowed">Widowed</option> </select>
+        </div>
+        <div><label for="email_id" class="block text-sm font-medium text-gray-700 mb-1">Email ID *</label> <input type="email" id="email_id" name="email_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="aadhar_no" class="block text-sm font-medium text-gray-700 mb-1">Aadhar Number *</label> <input type="text" id="aadhar_no" name="aadhar_no" required pattern="[0-9]{12}" maxlength="12" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+       <div class="mt-4"><label for="permanent_address" class="block text-sm font-medium text-gray-700 mb-1">Permanent Address *</label> <textarea id="permanent_address" name="permanent_address" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div><label for="state" class="block text-sm font-medium text-gray-700 mb-1">State *</label> <input type="text" id="state" name="state" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="contact_no" class="block text-sm font-medium text-gray-700 mb-1">Contact Number *</label> <input type="tel" id="contact_no" name="contact_no" required pattern="[0-9]{10}" maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+      </div><!-- Family Information -->
+      <div class="border-b border-gray-200 pb-4">
+       <h2 class="text-xl font-semibold text-gray-900 mb-4">Family Information</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label for="father_name" class="block text-sm font-medium text-gray-700 mb-1">Father Name *</label> <input type="text" id="father_name" name="father_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="father_dob" class="block text-sm font-medium text-gray-700 mb-1">Father Date of Birth *</label> <input type="date" id="father_dob" name="father_dob" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="mother_name" class="block text-sm font-medium text-gray-700 mb-1">Mother Name *</label> <input type="text" id="mother_name" name="mother_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="mother_dob" class="block text-sm font-medium text-gray-700 mb-1">Mother Date of Birth *</label> <input type="date" id="mother_dob" name="mother_dob" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+       <div id="marriageFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" style="display: none;">
+        <div><label for="date_of_marriage" class="block text-sm font-medium text-gray-700 mb-1">Date of Marriage</label> <input type="date" id="date_of_marriage" name="date_of_marriage" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="wife_name" class="block text-sm font-medium text-gray-700 mb-1">Wife Name</label> <input type="text" id="wife_name" name="wife_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="wife_dob" class="block text-sm font-medium text-gray-700 mb-1">Wife Date of Birth</label> <input type="date" id="wife_dob" name="wife_dob" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="no_children" class="block text-sm font-medium text-gray-700 mb-1">Number of Children</label> <select id="no_children" name="no_children" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="0">0</option> <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> </select>
+        </div>
+       </div>
+       <div id="childrenFields" class="mt-4" style="display: none;"></div>
+      </div><!-- Emergency Contact -->
+      <div class="border-b border-gray-200 pb-4">
+       <h2 class="text-xl font-semibold text-gray-900 mb-4">Emergency Contact</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label for="name_of_emergency_contact" class="block text-sm font-medium text-gray-700 mb-1">Name of Emergency Contact *</label> <input type="text" id="name_of_emergency_contact" name="name_of_emergency_contact" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="emergency_contact_no" class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Number *</label> <input type="tel" id="emergency_contact_no" name="emergency_contact_no" required pattern="[0-9]{10}" maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="employee_relation_emergency" class="block text-sm font-medium text-gray-700 mb-1">Relationship with Emergency Contact *</label> <input type="text" id="employee_relation_emergency" name="employee_relation_emergency" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+      </div><!-- Bank & Official Details -->
+      <div class="border-b border-gray-200 pb-4">
+       <h2 class="text-xl font-semibold text-gray-900 mb-4">Bank &amp; Official Details</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label for="bank_name" class="block text-sm font-medium text-gray-700 mb-1">Bank Name *</label> <input type="text" id="bank_name" name="bank_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="account_no" class="block text-sm font-medium text-gray-700 mb-1">Account Number *</label> <input type="text" id="account_no" name="account_no" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="ifsc_code" class="block text-sm font-medium text-gray-700 mb-1">IFSC Code *</label> <input type="text" id="ifsc_code" name="ifsc_code" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="uan_number" class="block text-sm font-medium text-gray-700 mb-1">UAN Number</label> <input type="text" id="uan_number" name="uan_number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="esi_no" class="block text-sm font-medium text-gray-700 mb-1">ESI No / WC Policy</label> <input type="text" id="esi_no" name="esi_no" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+      </div><!-- Education & Experience -->
+      <div class="border-b border-gray-200 pb-4">
+       <h2 class="text-xl font-semibold text-gray-900 mb-4">Education &amp; Experience</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label for="education" class="block text-sm font-medium text-gray-700 mb-1">Education *</label> <input type="text" id="education" name="education" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="scaffolding_experience" class="block text-sm font-medium text-gray-700 mb-1">Scaffolding Work Experience *</label> <input type="text" id="scaffolding_experience" name="scaffolding_experience" required placeholder="e.g., 5 years" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+      </div><!-- Document Upload -->
+      <div class="pb-4">
+       <h2 class="text-xl font-semibold text-gray-900 mb-4">Document Upload</h2>
+       <p class="text-sm text-gray-600 mb-4">Please upload required documents (images will be converted to Base64)</p>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label for="aadhar_front" class="block text-sm font-medium text-gray-700 mb-1">Aadhar Front *</label> <input type="file" id="aadhar_front" name="aadhar_front" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="aadhar_back" class="block text-sm font-medium text-gray-700 mb-1">Aadhar Back *</label> <input type="file" id="aadhar_back" name="aadhar_back" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="bank_passbook" class="block text-sm font-medium text-gray-700 mb-1">Bank Passbook *</label> <input type="file" id="bank_passbook" name="bank_passbook" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div><label for="passport_photo" class="block text-sm font-medium text-gray-700 mb-1">Passport Size Photo *</label> <input type="file" id="passport_photo" name="passport_photo" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+      </div>
+      <div id="statusMessage" class="hidden p-4 rounded-md mb-4"></div><button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md font-semibold transition-colors"> Submit Application </button>
+     </form>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Replace this URL with your Google Apps Script web app URL
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfzu16CY8Z2SV0MZY2Lpv835pf6b9VuNubI3tUpGKKyQSgdN7REzaw4-00vE_6wxlH/exec';
+    
+    let isSubmitting = false;
+
+    function setupFormHandlers() {
+      const form = document.getElementById('employeeForm');
+      const maritalStatus = document.getElementById('marital_status');
+      const marriageFields = document.getElementById('marriageFields');
+      const noChildren = document.getElementById('no_children');
+      const childrenFields = document.getElementById('childrenFields');
+
+      maritalStatus.addEventListener('change', (e) => {
+        if (e.target.value === 'Married') {
+          marriageFields.style.display = 'grid';
+        } else {
+          marriageFields.style.display = 'none';
+        }
+      });
+
+      noChildren.addEventListener('change', (e) => {
+        const count = parseInt(e.target.value);
+        if (count > 0) {
+          childrenFields.style.display = 'block';
+          renderChildrenFields(count);
+        } else {
+          childrenFields.style.display = 'none';
+          childrenFields.innerHTML = '';
+        }
+      });
+
+      form.addEventListener('submit', handleSubmit);
+    }
+
+    function renderChildrenFields(count) {
+      const childrenFields = document.getElementById('childrenFields');
+      let html = '<div class="grid grid-cols-1 gap-4">';
+      
+      for (let i = 1; i <= count; i++) {
+        html += `
+          <div class="border border-gray-200 rounded-md p-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Child ${i}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label for="child${i}_name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" id="child${i}_name" name="child${i}_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label for="child${i}_gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select id="child${i}_gender" name="child${i}_gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">Select</option>
+                  <option value="Son">Son</option>
+                  <option value="Daughter">Daughter</option>
+                </select>
+              </div>
+              <div>
+                <label for="child${i}_dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <input type="date" id="child${i}_dob" name="child${i}_dob" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+      childrenFields.innerHTML = html;
+    }
+
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      if (isSubmitting) return;
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const statusMessage = document.getElementById('statusMessage');
+      
+      isSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.classList.add('loading');
+      submitBtn.textContent = 'Submitting...';
+      
+      try {
+        const formData = new FormData(e.target);
+        const data = {};
+        
+        // Process form data
+        for (let [key, value] of formData.entries()) {
+          if (value instanceof File && value.size > 0) {
+            data[key] = await fileToBase64(value);
+          } else {
+            data[key] = value;
+          }
+        }
+        
+        data.submission_date = new Date().toISOString();
+        data.serial_number = Date.now(); // Simple serial number based on timestamp
+        
+        // Check if Google Script URL is configured
+        if (GOOGLE_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyfzu16CY8Z2SV0MZY2Lpv835pf6b9VuNubI3tUpGKKyQSgdN7REzaw4-00vE_6wxlH/exec') {
+          // Demo mode - show success message without actually sending data
+          statusMessage.className = 'p-4 rounded-md mb-4 bg-yellow-100 border border-yellow-400';
+          statusMessage.innerHTML = `
+            <div class="text-yellow-800">
+              <strong>Demo Mode:</strong> Form data collected successfully! 
+              <br><small>To save to Google Sheets, please configure the GOOGLE_SCRIPT_URL variable.</small>
+            </div>
+          `;
+          statusMessage.classList.remove('hidden');
+          
+          console.log('Form data (demo):', data);
+        } else {
+          // Send data to Google Sheets
+          const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+          });
+          
+          statusMessage.className = 'p-4 rounded-md mb-4 bg-green-100 border border-green-400';
+          statusMessage.innerHTML = `
+            <div class="text-green-800">
+              <strong>Success!</strong> Your employee data has been submitted successfully and saved to the Google Sheet.
+            </div>
+          `;
+          statusMessage.classList.remove('hidden');
+        }
+        
+        // Reset form
+        e.target.reset();
+        document.getElementById('marriageFields').style.display = 'none';
+        document.getElementById('childrenFields').style.display = 'none';
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          statusMessage.classList.add('hidden');
+        }, 5000);
+        
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        statusMessage.className = 'p-4 rounded-md mb-4 bg-red-100 border border-red-400';
+        statusMessage.innerHTML = `
+          <div class="text-red-800">
+            <strong>Error:</strong> There was a problem submitting your data. Please try again.
+          </div>
+        `;
+        statusMessage.classList.remove('hidden');
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+        submitBtn.textContent = 'Submit Application';
+      }
+    }
+
+    // Initialize the form when page loads
+    document.addEventListener('DOMContentLoaded', setupFormHandlers);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a26992c178ff9f',t:'MTc2MjQwOTI2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
