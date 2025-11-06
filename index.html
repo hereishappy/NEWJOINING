@@ -238,6 +238,8 @@
             // Convert file to base64 and store the full data URL
             const base64Data = await fileToBase64(value);
             data[key] = base64Data; // This includes "data:image/jpeg;base64,..." prefix
+            data[key + '_filename'] = value.name; // Store original filename
+            data[key + '_size'] = value.size; // Store file size
           } else {
             data[key] = value;
           }
@@ -259,7 +261,7 @@
         statusMessage.className = 'p-4 rounded-md mb-4 bg-green-100 border border-green-400';
         statusMessage.innerHTML = `
           <div class="text-green-800">
-            <strong>Success!</strong> Your employee data has been submitted successfully and saved to the Google Sheet.
+            <strong>Success!</strong> Your employee data has been submitted successfully and saved to the Google Sheet with downloadable document links.
           </div>
         `;
         statusMessage.classList.remove('hidden');
@@ -294,5 +296,5 @@
     // Initialize the form when page loads
     document.addEventListener('DOMContentLoaded', setupFormHandlers);
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a2aa9536ce3f5b',t:'MTc2MjQxMTkyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a2b7d8b2193f5b',t:'MTc2MjQxMjQ3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
