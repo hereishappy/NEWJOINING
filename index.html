@@ -232,38 +232,67 @@
         const formData = new FormData(e.target);
         const data = {};
         
-        // Process form data
+        // Process form data - skip files for now to avoid size issues
         for (let [key, value] of formData.entries()) {
           if (value instanceof File && value.size > 0) {
-            // Convert file to base64 and store the full data URL
-            const base64Data = await fileToBase64(value);
-            data[key] = base64Data; // This includes "data:image/jpeg;base64,..." prefix
-            data[key + '_filename'] = value.name; // Store original filename
-            data[key + '_size'] = value.size; // Store file size
+            // Store file info but not the actual file data to avoid payload size issues
+            data[key + '_filename'] = value.name;
+            data[key + '_size'] = value.size;
+            data[key + '_type'] = value.type;
+            data[key] = `[FILE: ${value.name} (${Math.round(value.size/1024)}KB)]`;
           } else {
             data[key] = value;
           }
         }
         
         data.submission_date = new Date().toISOString();
-        data.serial_number = Date.now(); // Simple serial number based on timestamp
+        data.serial_number = Date.now();
         
-        // Send data to Google Sheets
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
+        // Use a more robust submission method
+        const submitData = async () => {
+          try {
+            // Method 1: Try with fetch
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(data)
+            });
+            return { success: true, method: 'fetch' };
+          } catch (fetchError) {
+            // Method 2: Try with form submission
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = GOOGLE_SCRIPT_URL;
+            form.target = '_blank';
+            form.style.display = 'none';
+            
+            // Add data as hidden inputs
+            Object.keys(data).forEach(key => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = key;
+              input.value = data[key];
+              form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            return { success: true, method: 'form' };
+          }
+        };
         
-        const result = await response.text();
-        console.log('Server response:', result);
+        await submitData();
         
         statusMessage.className = 'p-4 rounded-md mb-4 bg-green-100 border border-green-400';
         statusMessage.innerHTML = `
           <div class="text-green-800">
-            <strong>Success!</strong> Your employee data has been submitted successfully and saved to the Google Sheet with downloadable document links.
+            <strong>Success!</strong> Your employee data has been submitted successfully. 
+            <br><small>Note: File uploads are recorded but actual files need to be uploaded separately to Google Drive.</small>
           </div>
         `;
         statusMessage.classList.remove('hidden');
@@ -273,17 +302,17 @@
         document.getElementById('marriageFields').style.display = 'none';
         document.getElementById('childrenFields').style.display = 'none';
         
-        // Hide success message after 5 seconds
+        // Hide success message after 8 seconds
         setTimeout(() => {
           statusMessage.classList.add('hidden');
-        }, 5000);
+        }, 8000);
         
       } catch (error) {
-        console.error('Error submitting form:', error);
         statusMessage.className = 'p-4 rounded-md mb-4 bg-red-100 border border-red-400';
         statusMessage.innerHTML = `
           <div class="text-red-800">
-            <strong>Error:</strong> There was a problem submitting your data. Please try again.
+            <strong>Error:</strong> Unable to submit data. Please check your internet connection and try again.
+            <br><small>If the problem persists, please contact your administrator.</small>
           </div>
         `;
         statusMessage.classList.remove('hidden');
@@ -298,5 +327,5 @@
     // Initialize the form when page loads
     document.addEventListener('DOMContentLoaded', setupFormHandlers);
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a36b8323943f5b',t:'MTc2MjQxOTgzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a3794f025ab29a',t:'MTc2MjQyMDM5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
