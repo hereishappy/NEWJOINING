@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Employee Data & Document Upload</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Employee Data Entry</title>
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <form id="employeeForm">
     <h2>Employee Data Entry</h2>
-    <label>Employee Name(AsperAadhar)<input name="employeeName" type="text"></label>
+    <!-- All fields needed for the sheet, keep names exactly as in Code.gs -->
+    <label>Employee Name(AsperAadhar)<input name="employeeName" type="text" required></label>
     <label>Date of Birth<input name="dob" type="date"></label>
     <label>Blood Group<input name="bloodGroup" type="text"></label>
     <label>Marital Status<input name="maritalStatus" type="text"></label>
@@ -49,11 +49,12 @@
   </form>
   <form id="uploadForm" enctype="multipart/form-data">
     <h2>Upload Documents</h2>
-    <label>Employee Name (for Drive Folder)<input name="uploadEmployeeName" type="text"></label>
-    <label>Aadhaar Front<input type="file" name="aadharFront" multiple></label>
-    <label>Aadhaar Back<input type="file" name="aadharBack" multiple></label>
-    <label>Bank Passbook<input type="file" name="bankPassbook" multiple></label>
-    <label>Passport Size Photo<input type="file" name="photo" multiple></label>
+    <label>Employee Name (for Drive Folder)<input name="uploadEmployeeName" type="text" required></label>
+    <!-- Only ONE file per field, NO "multiple" -->
+    <label>Aadhaar Front<input type="file" name="aadharFront" accept=".jpg,.jpeg,.png,.pdf"></label>
+    <label>Aadhaar Back<input type="file" name="aadharBack" accept=".jpg,.jpeg,.png,.pdf"></label>
+    <label>Bank Passbook<input type="file" name="bankPassbook" accept=".jpg,.jpeg,.png,.pdf"></label>
+    <label>Passport Size Photo<input type="file" name="photo" accept=".jpg,.jpeg,.png,.pdf"></label>
     <button type="submit">Upload Documents</button>
   </form>
   <div id="status"></div>
