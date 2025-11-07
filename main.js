@@ -4,17 +4,16 @@ const employeeForm = document.getElementById('employeeForm');
 const uploadForm = document.getElementById('uploadForm');
 const statusDiv = document.getElementById('status');
 
-// Handle employee form
+// Handle employeeForm data submission
 employeeForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Submitting...';
-
   const formData = new FormData(employeeForm);
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: formData
   })
-  .then(res => res.text()) // always parse as text
+  .then(res => res.text())
   .then(text => {
     let data;
     try { data = JSON.parse(text); } catch {
@@ -28,18 +27,19 @@ employeeForm.addEventListener('submit', function(e) {
   });
 });
 
-// Handle uploads
+// Handle uploadForm file uploads with employee folder creation
 uploadForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Uploading...';
-
   const formData = new FormData(uploadForm);
-  formData.append('action', 'upload'); // Important! Tells backend it is an upload.
+  // Important: attach action so backend knows this is a file upload
+  formData.append('action', 'upload');
+  
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: formData
   })
-  .then(res => res.text()) // always parse as text
+  .then(res => res.text())
   .then(text => {
     let data;
     try { data = JSON.parse(text); } catch {
