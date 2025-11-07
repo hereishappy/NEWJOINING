@@ -32,9 +32,13 @@ uploadForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Uploading...';
   const formData = new FormData(uploadForm);
-  // Important: attach action so backend knows this is a file upload
   formData.append('action', 'upload');
   
+  // Debug log (uncomment if you want to see files in browser console)
+  // for (let pair of formData.entries()) {
+  //   console.log(pair[0], pair[1]);
+  // }
+
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: formData
