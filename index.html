@@ -1,62 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Employee Data & Document Upload</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Employee Onboarding (Static)</title>
+  <style>
+    /* same clean mobile-friendly UI */
+    body{font-family: Arial, Helvetica, sans-serif;margin:0;padding:12px;background:#f7f7f8}
+    .card{max-width:760px;margin:8px auto;background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+    h2{margin:0 0 8px;font-size:20px}
+    label{display:block;margin-top:8px;font-size:13px}
+    input[type=text], input[type=date], select, textarea{width:100%;padding:10px;margin-top:6px;border-radius:6px;border:1px solid #ddd;box-sizing:border-box}
+    textarea{min-height:80px}
+    .row{display:flex;gap:8px}
+    .col{flex:1}
+    .file-row{display:flex;flex-direction:column;gap:6px}
+    button{background:#0b78e3;color:#fff;padding:10px 14px;border:none;border-radius:8px;margin-top:12px;font-weight:600}
+    .muted{font-size:12px;color:#666}
+    @media(max-width:520px){.row{flex-direction:column}}
+  </style>
 </head>
 <body>
-  <form id="employeeForm">
-    <h2>Employee Data Entry</h2>
-    <!-- All form fields must match backend names! -->
-    <label>Employee Name(AsperAadhar)<input name="employeeName" type="text" required></label>
-    <label>Date of Birth<input name="dob" type="date"></label>
-    <label>Blood Group<input name="bloodGroup" type="text"></label>
-    <label>Marital Status<input name="maritalStatus" type="text"></label>
-    <label>Father name<input name="fatherName" type="text"></label>
-    <label>Permanent Address<input name="address" type="text"></label>
-    <label>Contact No<input name="contactNo" type="tel"></label>
-    <label>Emergency Contact No<input name="emergencyContactNo" type="tel"></label>
-    <label>Employee Relationwith EmergencyContactNo<input name="employeeRelation" type="text"></label>
-    <label>Name of Emergency Contact<input name="emergencyContactName" type="text"></label>
-    <label>State<input name="state" type="text"></label>
-    <label>Bank Name<input name="bankName" type="text"></label>
-    <label>Account No<input name="accountNo" type="text"></label>
-    <label>IFSC Code<input name="ifsc" type="text"></label>
-    <label>UAN Number<input name="uan" type="text"></label>
-    <label>ESI No/ WC POLICY<input name="esi" type="text"></label>
-    <label>AdharNo<input name="aadharNo" type="text"></label>
-    <label>Father name (again)<input name="fatherName2" type="text"></label>
-    <label>Father Date of Birth<input name="fatherDob" type="date"></label>
-    <label>Mother Name<input name="motherName" type="text"></label>
-    <label>Mother Date of Birth<input name="motherDob" type="date"></label>
-    <label>Date of Marriage<input name="marriageDate" type="date"></label>
-    <label>Wife Name<input name="wifeName" type="text"></label>
-    <label>Wife Date of Birth<input name="wifeDob" type="date"></label>
-    <label>No.Childrens<input name="numChildren" type="number"></label>
-    <label>Child 1 Name<input name="child1Name" type="text"></label>
-    <label>Son/Daughter 1<input name="child1Gender" type="text"></label>
-    <label>Child 1 DOB<input name="child1Dob" type="date"></label>
-    <label>Child 2 Name<input name="child2Name" type="text"></label>
-    <label>Son/Daughter 2<input name="child2Gender" type="text"></label>
-    <label>Child 2 DOB<input name="child2Dob" type="date"></label>
-    <label>Child 3 Name<input name="child3Name" type="text"></label>
-    <label>Son/Daughter 3<input name="child3Gender" type="text"></label>
-    <label>Child 3 DOB<input name="child3Dob" type="date"></label>
-    <label>Education<input name="education" type="text"></label>
-    <label>Scaffolding Work Experience<input name="scaffoldingExp" type="text"></label>
-    <button type="submit">Submit Data</button>
-  </form>
-  <form id="uploadForm" enctype="multipart/form-data">
-    <h2>Upload Documents</h2>
-    <label>Employee Name (for Drive Folder)<input name="uploadEmployeeName" type="text" required></label>
-    <label>Aadhaar Front<input type="file" name="aadharFront" accept=".jpg,.jpeg,.png,.pdf"></label>
-    <label>Aadhaar Back<input type="file" name="aadharBack" accept=".jpg,.jpeg,.png,.pdf"></label>
-    <label>Bank Passbook<input type="file" name="bankPassbook" accept=".jpg,.jpeg,.png,.pdf"></label>
-    <label>Passport Size Photo<input type="file" name="photo" accept=".jpg,.jpeg,.png,.pdf"></label>
-    <button type="submit">Upload Documents</button>
-  </form>
-  <div id="status"></div>
-  <script src="main.js"></script>
+  <div class="card">
+    <h2>Employee Onboarding</h2>
+    <p class="muted">Fill details. Fields are optional. Upload docs and hit Submit.</p>
+
+    <form id="empForm">
+      <!-- (All fields same as before) -->
+      <label>Employee Name (As per Aadhar)<input name="employeeName" type="text"></label>
+
+      <div class="row">
+        <div class="col"><label>Date of Birth<input name="dob" type="date"></label></div>
+        <div class="col"><label>Blood Group<input name="bloodGroup" type="text" placeholder="eg. O+"></label></div>
+      </div>
+
+      <label>Marital Status
+        <select name="maritalStatus">
+          <option value="">-- select --</option>
+          <option>Single</option><option>Married</option><option>Widowed</option><option>Divorced</option>
+        </select>
+      </label>
+
+      <label>Father name<input name="fatherName" type="text"></label>
+      <label>Permanent Address<textarea name="permanentAddress"></textarea></label>
+
+      <div class="row">
+        <div class="col"><label>Contact No<input name="contactNo" type="text"></label></div>
+        <div class="col"><label>Emergency Contact No<input name="emergencyContactNo" type="text"></label></div>
+      </div>
+
+      <label>Employee Relation with Emergency Contact No<input name="emergencyRelation" type="text"></label>
+      <label>Name of Emergency Contact<input name="emergencyName" type="text"></label>
+      <label>State<input name="state" type="text"></label>
+
+      <h3 style="margin-top:12px">Bank & Govt</h3>
+      <label>Bank Name<input name="bankName" type="text"></label>
+      <label>Account No<input name="accountNo" type="text"></label>
+      <label>IFSC Code<input name="ifsc" type="text"></label>
+      <label>UAN Number<input name="uan" type="text"></label>
+      <label>ESI No/ WC POLICY<input name="esi" type="text"></label>
+      <label>Aadhar No<input name="aadharNo" type="text"></label>
+
+      <h3 style="margin-top:12px">Family</h3>
+      <label>Father name (repeat)<input name="fatherNameRepeat" type="text"></label>
+      <div class="row">
+        <div class="col"><label>Father DOB<input name="fatherDob" type="date"></label></div>
+        <div class="col"><label>Mother DOB<input name="motherDob" type="date"></label></div>
+      </div>
+      <label>Mother Name<input name="motherName" type="text"></label>
+
+      <label>Date of Marriage<input name="marriageDate" type="date"></label>
+      <label>Wife Name<input name="wifeName" type="text"></label>
+      <label>Wife DOB<input name="wifeDob" type="date"></label>
+
+      <label>No. Childrens<input name="noChildren" type="text"></label>
+
+      <h4>Child 1</h4>
+      <label>Child 1 Name<input name="child1Name" type="text"></label>
+      <label>Son/Daughter<input name="child1Gender" type="text"></label>
+      <label>Child 1 DOB<input name="child1Dob" type="date"></label>
+
+      <h4>Child 2</h4>
+      <label>Child 2 Name<input name="child2Name" type="text"></label>
+      <label>Son/Daughter<input name="child2Gender" type="text"></label>
+      <label>Child 2 DOB<input name="child2Dob" type="date"></label>
+
+      <h4>Child 3</h4>
+      <label>Child 3 Name<input name="child3Name" type="text"></label>
+      <label>Son/Daughter<input name="child3Gender" type="text"></label>
+      <label>Child 3 DOB<input name="child3Dob" type="date"></label>
+
+      <label>Education<input name="education" type="text"></label>
+      <label>Scaffolding Work Experience<input name="workExperience" type="text"></label>
+
+      <h3 style="margin-top:12px">Upload Documents</h3>
+      <div class="file-row">
+        <label>Adhaar Front<input id="adhaarFront" type="file" accept="image/*,application/pdf"></label>
+        <label>Adhaar Back<input id="adhaarBack" type="file" accept="image/*,application/pdf"></label>
+        <label>Bank Passbook<input id="bankPassbook" type="file" accept="image/*,application/pdf"></label>
+        <label>Passport Size Photo<input id="photo" type="file" accept="image/*"></label>
+      </div>
+
+      <button type="button" id="submitBtn">Submit</button>
+      <button type="button" id="testBtn" style="background:#2aa65b;margin-left:8px">Insert Test Row</button>
+
+      <div id="status" class="muted" style="margin-top:12px"></div>
+    </form>
+  </div>
+
+  <script>
+    // 🔥 Put your Apps Script Web App URL here:
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQF-wXDjpt6WfghxrPT8BCxcX-RP51QZHL9I41l5vYDR_r2aXKsYIhpW7D9N8KvfUi/exec";
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve) => {
+        if (!file) { resolve(null); return; }
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => resolve(null);
+        r.readAsDataURL(file);
+      });
+    }
+
+    async function submitFormToServer(formDataObj, filesArray) {
+      const payload = { formData: formDataObj, files: filesArray };
+
+      const res = await fetch(WEB_APP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        // note: don't use credentials unless your web app expects it
+      });
+      return res.json();
+    }
+
+    async function collectAndSend() {
+      const status = document.getElementById("status");
+      status.innerText = "Preparing...";
+
+      const formEl = document.getElementById("empForm");
+      const formData = {};
+      Array.from(formEl.elements).forEach(el => {
+        if (!el.name) return;
+        formData[el.name] = el.value;
+      });
+
+      // files
+      const adf = document.getElementById("adhaarFront").files[0];
+      const adb = document.getElementById("adhaarBack").files[0];
+      const bp = document.getElementById("bankPassbook").files[0];
+      const ph = document.getElementById("photo").files[0];
+
+      const f1 = await readFileAsDataURL(adf);
+      const f2 = await readFileAsDataURL(adb);
+      const f3 = await readFileAsDataURL(bp);
+      const f4 = await readFileAsDataURL(ph);
+
+      const files = [];
+      if (f1) files.push({ type: "adhaarFront", name: adf.name, mimeType: adf.type, base64: f1 });
+      if (f2) files.push({ type: "adhaarBack", name: adb.name, mimeType: adb.type, base64: f2 });
+      if (f3) files.push({ type: "bankPassbook", name: bp.name, mimeType: bp.type, base64: f3 });
+      if (f4) files.push({ type: "photo", name: ph.name, mimeType: ph.type, base64: f4 });
+
+      status.innerText = "Uploading...";
+      try {
+        const result = await submitFormToServer(formData, files);
+        if (result && result.success) {
+          status.innerText = "Saved. Serial: " + result.serial + ". Employee folder created.";
+          formEl.reset();
+        } else {
+          status.innerText = "Save failed. " + (result && result.error ? result.error : "");
+        }
+      } catch (err) {
+        console.error(err);
+        status.innerText = "Request failed: " + (err && err.message ? err.message : err);
+      }
+    }
+
+    async function runTestRow() {
+      const status = document.getElementById("status");
+      status.innerText = "Inserting test row...";
+      try {
+        // use a simple POST that asks server to insert a test row
+        const res = await fetch(WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ testInsert: true })
+        });
+        const j = await res.json();
+        if (j && j.success) status.innerText = "Test row inserted. Serial: " + j.serial;
+        else status.innerText = "Test failed: " + (j && j.error ? j.error : "");
+      } catch (err) {
+        console.error(err);
+        status.innerText = "Error: " + (err && err.message ? err.message : err);
+      }
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", collectAndSend);
+    document.getElementById("testBtn").addEventListener("click", runTestRow);
+  </script>
 </body>
 </html>
