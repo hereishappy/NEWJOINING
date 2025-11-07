@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Employee Data Form</title>
+  <title>Employee Data Entry</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <form id="employeeForm">
     <h2>Employee Data Entry</h2>
-    <label>Employee Name(As per Aadhar)<input name="employeeName" type="text"></label>
+    <label>Employee Name(AsperAadhar)<input name="employeeName" type="text"></label>
     <label>Date of Birth<input name="dob" type="date"></label>
     <label>Blood Group<input name="bloodGroup" type="text"></label>
     <label>Marital Status<input name="maritalStatus" type="text"></label>
@@ -17,7 +17,7 @@
     <label>Permanent Address<input name="address" type="text"></label>
     <label>Contact No<input name="contactNo" type="tel"></label>
     <label>Emergency Contact No<input name="emergencyContactNo" type="tel"></label>
-    <label>Employee Relation with Emergency Contact<input name="employeeRelation" type="text"></label>
+    <label>Employee Relationwith EmergencyContactNo<input name="employeeRelation" type="text"></label>
     <label>Name of Emergency Contact<input name="emergencyContactName" type="text"></label>
     <label>State<input name="state" type="text"></label>
     <label>Bank Name<input name="bankName" type="text"></label>
@@ -25,28 +25,29 @@
     <label>IFSC Code<input name="ifsc" type="text"></label>
     <label>UAN Number<input name="uan" type="text"></label>
     <label>ESI No/ WC POLICY<input name="esi" type="text"></label>
-    <label>Aadhar No<input name="aadharNo" type="text"></label>
+    <label>AdharNo<input name="aadharNo" type="text"></label>
+    <label>Father name<input name="fatherName2" type="text"></label>
     <label>Father Date of Birth<input name="fatherDob" type="date"></label>
     <label>Mother Name<input name="motherName" type="text"></label>
     <label>Mother Date of Birth<input name="motherDob" type="date"></label>
     <label>Date of Marriage<input name="marriageDate" type="date"></label>
     <label>Wife Name<input name="wifeName" type="text"></label>
     <label>Wife Date of Birth<input name="wifeDob" type="date"></label>
-    <label>No. of Childrens<input name="numChildren" type="number"></label>
+    <label>No.Childrens<input name="numChildren" type="number"></label>
     <label>Child 1 Name<input name="child1Name" type="text"></label>
     <label>Son/Daughter<input name="child1Gender" type="text"></label>
     <label>Child 1 DOB<input name="child1Dob" type="date"></label>
     <label>Child 2 Name<input name="child2Name" type="text"></label>
-    <label>Son/Daughter<input name="child2Gender" type="text"></label>
+    <label>Son/Daughter 2<input name="child2Gender" type="text"></label>
     <label>Child 2 DOB<input name="child2Dob" type="date"></label>
     <label>Child 3 Name<input name="child3Name" type="text"></label>
-    <label>Son/Daughter<input name="child3Gender" type="text"></label>
+    <label>Son/Daughter 3<input name="child3Gender" type="text"></label>
     <label>Child 3 DOB<input name="child3Dob" type="date"></label>
     <label>Education<input name="education" type="text"></label>
     <label>Scaffolding Work Experience<input name="scaffoldingExp" type="text"></label>
     <button type="submit">Submit Data</button>
   </form>
-  <form id="uploadForm">
+  <form id="uploadForm" enctype="multipart/form-data">
     <h2>Upload Documents</h2>
     <label>Aadhaar Front<input type="file" name="aadharFront"></label>
     <label>Aadhaar Back<input type="file" name="aadharBack"></label>
