@@ -8,30 +8,47 @@ const statusDiv = document.getElementById('status');
 employeeForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Submitting...';
+
   const formData = new FormData(employeeForm);
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: formData
-  }).then(res => res.json())
-    .then(data => {
-      statusDiv.textContent = data.message || 'Data saved!';
-    }).catch(err => {
-      statusDiv.textContent = 'Error: ' + err;
-    });
+  })
+  .then(res => res.text()) // always parse as text
+  .then(text => {
+    let data;
+    try { data = JSON.parse(text); } catch {
+      statusDiv.textContent = 'Unexpected server response: ' + text;
+      return;
+    }
+    statusDiv.textContent = data.message || 'Data saved!';
+  })
+  .catch(err => {
+    statusDiv.textContent = 'Error: ' + err;
+  });
 });
 
 // Handle uploads
 uploadForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Uploading...';
+
   const formData = new FormData(uploadForm);
-  fetch(`${SCRIPT_URL}?action=upload`, {
+  formData.append('action', 'upload'); // Important! Tells backend it is an upload.
+  fetch(SCRIPT_URL, {
     method: 'POST',
     body: formData
-  }).then(res => res.json())
-    .then(data => {
-      statusDiv.textContent = data.message || 'Files uploaded!';
-    }).catch(err => {
-      statusDiv.textContent = 'Error: ' + err;
-    });
+  })
+  .then(res => res.text()) // always parse as text
+  .then(text => {
+    let data;
+    try { data = JSON.parse(text); } catch {
+      statusDiv.textContent = 'Unexpected server response: ' + text;
+      return;
+    }
+    statusDiv.textContent = data.message || 'Files uploaded!';
+  })
+  .catch(err => {
+    statusDiv.textContent = 'Error: ' + err;
+  });
 });
