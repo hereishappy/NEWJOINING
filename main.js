@@ -25,11 +25,21 @@ employeeForm.addEventListener('submit', function(e) {
   });
 });
 
-// Document upload with folder per employee
 uploadForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Uploading...';
   const formData = new FormData(uploadForm);
+
+  // Check for files before POST (best practice)
+  let fileCount = 0;
+  ['aadharFront', 'aadharBack', 'bankPassbook', 'photo'].forEach(
+    k => { if (formData.get(k) instanceof File && formData.get(k).name) fileCount++; }
+  );
+  if (fileCount === 0) {
+    statusDiv.textContent = "Please select at least one file before uploading.";
+    return;
+  }
+
   formData.append('action', 'upload');
   fetch(SCRIPT_URL, {
     method: 'POST',
