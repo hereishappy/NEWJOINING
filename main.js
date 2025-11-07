@@ -1,5 +1,4 @@
-// CHANGE THIS URL TO YOUR APPS SCRIPT WEB APP URL
-const SCRIPT_URL = 'YOUR_SCRIPT_WEB_APP_URL'; // e.g. https://script.google.com/macros/s/xxxxxx/exec
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQF-wXDjpt6WfghxrPT8BCxcX-RP51QZHL9I41l5vYDR_r2aXKsYIhpW7D9N8KvfUi/exec';
 
 const employeeForm = document.getElementById('employeeForm');
 const uploadForm = document.getElementById('uploadForm');
