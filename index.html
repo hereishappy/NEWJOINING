@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Employee Onboarding (Static)</title>
   <style>
-    /* same clean mobile-friendly UI */
     body{font-family: Arial, Helvetica, sans-serif;margin:0;padding:12px;background:#f7f7f8}
     .card{max-width:760px;margin:8px auto;background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
     h2{margin:0 0 8px;font-size:20px}
@@ -26,7 +25,6 @@
     <p class="muted">Fill details. Fields are optional. Upload docs and hit Submit.</p>
 
     <form id="empForm">
-      <!-- (All fields same as before) -->
       <label>Employee Name (As per Aadhar)<input name="employeeName" type="text"></label>
 
       <div class="row">
@@ -109,8 +107,9 @@
   </div>
 
   <script>
-    // 🔥 Put your Apps Script Web App URL here:
+    // ---- SET THIS to your deployed Apps Script Web App exec URL ----
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQF-wXDjpt6WfghxrPT8BCxcX-RP51QZHL9I41l5vYDR_r2aXKsYIhpW7D9N8KvfUi/exec";
+    // Example: "https://script.google.com/macros/s/AKfycbx.../exec"
 
     function readFileAsDataURL(file) {
       return new Promise((resolve) => {
@@ -124,12 +123,10 @@
 
     async function submitFormToServer(formDataObj, filesArray) {
       const payload = { formData: formDataObj, files: filesArray };
-
       const res = await fetch(WEB_APP_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        // note: don't use credentials unless your web app expects it
+        body: JSON.stringify(payload)
       });
       return res.json();
     }
@@ -145,7 +142,6 @@
         formData[el.name] = el.value;
       });
 
-      // files
       const adf = document.getElementById("adhaarFront").files[0];
       const adb = document.getElementById("adhaarBack").files[0];
       const bp = document.getElementById("bankPassbook").files[0];
@@ -181,7 +177,6 @@
       const status = document.getElementById("status");
       status.innerText = "Inserting test row...";
       try {
-        // use a simple POST that asks server to insert a test row
         const res = await fetch(WEB_APP_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
