@@ -4,7 +4,6 @@ const employeeForm = document.getElementById('employeeForm');
 const uploadForm = document.getElementById('uploadForm');
 const statusDiv = document.getElementById('status');
 
-// Handle employeeForm data submission
 employeeForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Submitting...';
@@ -21,24 +20,17 @@ employeeForm.addEventListener('submit', function(e) {
       return;
     }
     statusDiv.textContent = data.message || 'Data saved!';
-  })
-  .catch(err => {
+  }).catch(err => {
     statusDiv.textContent = 'Error: ' + err;
   });
 });
 
-// Handle uploadForm file uploads with employee folder creation
+// Document upload with folder per employee
 uploadForm.addEventListener('submit', function(e) {
   e.preventDefault();
   statusDiv.textContent = 'Uploading...';
   const formData = new FormData(uploadForm);
   formData.append('action', 'upload');
-  
-  // Debug log (uncomment if you want to see files in browser console)
-  // for (let pair of formData.entries()) {
-  //   console.log(pair[0], pair[1]);
-  // }
-
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: formData
@@ -51,8 +43,7 @@ uploadForm.addEventListener('submit', function(e) {
       return;
     }
     statusDiv.textContent = data.message || 'Files uploaded!';
-  })
-  .catch(err => {
+  }).catch(err => {
     statusDiv.textContent = 'Error: ' + err;
   });
 });
