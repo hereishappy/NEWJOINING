@@ -8,7 +8,7 @@
 <body>
   <form id="employeeForm">
     <h2>Employee Data Entry</h2>
-    <!-- All fields needed for the sheet, keep names exactly as in Code.gs -->
+    <!-- All form fields must match backend names! -->
     <label>Employee Name(AsperAadhar)<input name="employeeName" type="text" required></label>
     <label>Date of Birth<input name="dob" type="date"></label>
     <label>Blood Group<input name="bloodGroup" type="text"></label>
@@ -50,7 +50,6 @@
   <form id="uploadForm" enctype="multipart/form-data">
     <h2>Upload Documents</h2>
     <label>Employee Name (for Drive Folder)<input name="uploadEmployeeName" type="text" required></label>
-    <!-- Only ONE file per field, NO "multiple" -->
     <label>Aadhaar Front<input type="file" name="aadharFront" accept=".jpg,.jpeg,.png,.pdf"></label>
     <label>Aadhaar Back<input type="file" name="aadharBack" accept=".jpg,.jpeg,.png,.pdf"></label>
     <label>Bank Passbook<input type="file" name="bankPassbook" accept=".jpg,.jpeg,.png,.pdf"></label>
