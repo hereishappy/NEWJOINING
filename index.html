@@ -3,16 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Employee Onboarding — Static</title>
+  <title>Employee Onboarding</title>
   <style>
-    /* Mobile-friendly, large inputs */
     body{font-family:Inter,Arial,sans-serif;background:#f5f6f8;margin:0;padding:12px}
-    .card{max-width:900px;margin:12px auto;background:#fff;padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
-    h1{color:#0b78e3;text-align:center;margin:0 0 6px;font-size:1.6rem}
-    p.lead{text-align:center;color:#444;margin:0 0 12px}
-    label{display:block;margin-top:12px;font-size:1rem;font-weight:600}
-    input,select,textarea{width:100%;padding:14px;border-radius:10px;border:1px solid #d4d7db;margin-top:6px;font-size:1rem;box-sizing:border-box}
-    textarea{min-height:90px}
+    .card{max-width:920px;margin:16px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    h1{color:#0b78e3;text-align:center;margin:0 0 12px;font-size:1.5rem}
+    label{display:block;margin-top:12px;font-weight:600}
+    input,select,textarea{width:100%;padding:14px;border-radius:10px;border:1px solid #d4d7db;margin-top:8px;font-size:1rem;box-sizing:border-box}
+    textarea{min-height:100px}
     .row{display:flex;gap:12px}
     .col{flex:1}
     .files{display:flex;flex-direction:column;gap:8px;margin-top:8px}
@@ -20,19 +18,18 @@
     button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:700;background:#0b78e3;color:#fff;font-size:1rem;cursor:pointer}
     .status{margin-top:14px;text-align:center;color:#222}
     @media(max-width:640px){.row{flex-direction:column}button{width:100%}}
-    /* hide the iframe */
+    /* iframe hidden visually but visible for debugging if needed */
     #submit_iframe{display:none;width:0;height:0;border:0}
   </style>
 </head>
 <body>
   <div class="card" role="main">
     <h1>Employee Onboarding</h1>
-    <p class="lead">Fill the form and upload docs. Tap Submit when ready.</p>
+    <p style="text-align:center;margin:0 0 12px;color:#555">Fill form & upload docs. Tap Submit.</p>
 
-    <!-- The form POSTS to Apps Script endpoint via hidden iframe -->
-    <form id="empForm" method="post" action="YOUR_APP_SCRIPT_EXEC_URL_HERE" target="submit_iframe" enctype="application/x-www-form-urlencoded">
-      <!-- Visible fields (same names as your apps script expects) -->
-      <label>Employee Name (As per Aadhar)<input name="employeeName" type="text" required /></label>
+    <!-- IMPORTANT: set action to your deployed Apps Script exec URL -->
+    <form id="empForm" method="post" action="https://script.google.com/macros/s/AKfycbzgE5pJwsA_wLlTjwaY1w4cx83H7ihfFj7PD_TZgDQaTndqqO2moAK21neCw1XYa40Ftw/exec" target="submit_iframe" enctype="application/x-www-form-urlencoded">
+      <label>Employee Name (As per Aadhar)<input name="employeeName" type="text" /></label>
 
       <div class="row">
         <div class="col"><label>Date of Birth<input name="dob" type="date" /></label></div>
@@ -97,104 +94,102 @@
 
       <h3 style="margin-top:12px">Upload Documents</h3>
       <div class="files">
-        <!-- visible file inputs (we'll convert to base64 and add hidden fields before submit) -->
         <label>Adhaar Front<input id="adhaarFront" type="file" accept="image/*,application/pdf" /></label>
         <label>Adhaar Back<input id="adhaarBack" type="file" accept="image/*,application/pdf" /></label>
         <label>Bank Passbook<input id="bankPassbook" type="file" accept="image/*,application/pdf" /></label>
         <label>Passport Size Photo<input id="photo" type="file" accept="image/*" /></label>
       </div>
 
-      <!-- Hidden container for injected base64 fields -->
+      <!-- hidden inputs injected before submit -->
       <div id="hiddenInputs" style="display:none"></div>
 
-      <div class="btn-row" style="margin-top:16px">
+      <div class="btn-row">
         <button id="submitBtn" type="button">Submit</button>
       </div>
 
       <div id="status" class="status"></div>
     </form>
 
-    <!-- hidden iframe for form submission to avoid navigation & CORS -->
+    <!-- hidden iframe used as form target to avoid navigation & CORS -->
     <iframe name="submit_iframe" id="submit_iframe"></iframe>
   </div>
 
 <script>
-  // Replace placeholder (if not already replaced server-side)
-  (function(){
-    const form = document.getElementById('empForm');
-    // If you forgot to replace the action value in the HTML file, you can set it here:
-    // form.action = 'https://script.google.com/macros/s/AKfycbzgE5pJwsA_wLlTjwaY1w4cx83H7ihfFj7PD_TZgDQaTndqqO2moAK21neCw1XYa40Ftw/exec';
-  })();
-
   function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve,reject){
       if (!file) return resolve(null);
-      const r = new FileReader();
-      r.onload = () => resolve(r.result);
-      r.onerror = () => reject(new Error('File read error'));
+      var r = new FileReader();
+      r.onload = ()=>resolve(r.result);
+      r.onerror = ()=>reject(new Error('file read error'));
       r.readAsDataURL(file);
     });
   }
 
   async function prepareAndSubmit() {
-    const status = document.getElementById('status');
-    status.textContent = 'Preparing upload...';
+    var status = document.getElementById('status');
+    status.textContent = 'Preparing...';
 
-    // remove old hidden inputs
-    const hidden = document.getElementById('hiddenInputs');
-    hidden.innerHTML = '';
+    // remove previous hidden inputs
+    var hidden = document.getElementById('hiddenInputs'); hidden.innerHTML = '';
 
-    // collect visible form fields into the form (they're already in the form)
-    // now process files: convert to dataURL and add hidden inputs named file_<type>
-    const fileMap = [
+    var fileMap = [
       { id: 'adhaarFront', type: 'adhaarFront' },
       { id: 'adhaarBack',  type: 'adhaarBack' },
       { id: 'bankPassbook', type: 'bankPassbook' },
       { id: 'photo', type: 'photo' }
     ];
 
-    const filesPayload = [];
-
     for (let entry of fileMap) {
       const el = document.getElementById(entry.id);
       if (el && el.files && el.files[0]) {
         try {
-          const file = el.files[0];
-          const dataUrl = await readFileAsDataURL(file);
-          // create hidden inputs: base64, name, mime
-          const inpB64 = document.createElement('input'); inpB64.type='hidden';
-          inpB64.name = 'file_' + entry.type + '_b64'; inpB64.value = dataUrl;
-          const inpName = document.createElement('input'); inpName.type='hidden';
-          inpName.name = 'file_' + entry.type + '_name'; inpName.value = file.name;
-          const inpType = document.createElement('input'); inpType.type='hidden';
-          inpType.name = 'file_' + entry.type + '_type'; inpType.value = file.type || 'application/octet-stream';
-          hidden.appendChild(inpB64); hidden.appendChild(inpName); hidden.appendChild(inpType);
-        } catch (err) {
-          console.error('file read fail', entry.id, err);
+          const f = el.files[0];
+          const b64 = await readFileAsDataURL(f);
+          // create hidden inputs for base64, name, type
+          const i1 = document.createElement('input'); i1.type='hidden'; i1.name = 'file_' + entry.type + '_b64'; i1.value = b64;
+          const i2 = document.createElement('input'); i2.type='hidden'; i2.name = 'file_' + entry.type + '_name'; i2.value = f.name;
+          const i3 = document.createElement('input'); i3.type='hidden'; i3.name = 'file_' + entry.type + '_type'; i3.value = f.type || 'application/octet-stream';
+          hidden.appendChild(i1); hidden.appendChild(i2); hidden.appendChild(i3);
+        } catch(e) {
+          console.error('file read failed', e);
         }
       }
     }
 
-    // now submit the form to the hidden iframe (bypasses CORS)
     status.textContent = 'Uploading...';
-    form.submit();
-  }
 
-  // handle response posted from iframe (Apps Script returns small HTML that posts message to parent)
-  window.addEventListener('message', function(ev) {
-    try {
-      const data = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data;
-      const status = document.getElementById('status');
-      if (data && data.success) {
-        status.textContent = 'Saved successfully — Serial: ' + (data.serial || 'N/A');
-        document.getElementById('empForm').reset();
-      } else {
-        status.textContent = 'Save failed: ' + (data && data.error ? data.error : 'unknown');
+    // listen for message from iframe (Apps Script returns HTML that posts a message)
+    function onMessage(ev) {
+      try {
+        var data = ev.data;
+        if (typeof data === 'string') {
+          try { data = JSON.parse(data); } catch(e) { /* ignore */ }
+        }
+        var s = document.getElementById('status');
+        if (data && data.success) {
+          s.textContent = 'Saved. Serial: ' + (data.serial || 'N/A');
+          document.getElementById('empForm').reset();
+        } else {
+          s.textContent = 'Save failed: ' + (data && data.error ? data.error : JSON.stringify(data));
+        }
+      } catch(err) {
+        document.getElementById('status').textContent = 'Error parsing response';
+      } finally {
+        window.removeEventListener('message', onMessage);
       }
-    } catch (err) {
-      console.error('bad message', err);
     }
-  }, false);
+    window.addEventListener('message', onMessage);
+
+    // submit form to Apps Script endpoint (target is iframe)
+    document.getElementById('empForm').submit();
+
+    // safety timeout: if no response in 50s, show message
+    setTimeout(function(){
+      if (document.getElementById('status').textContent === 'Uploading...') {
+        document.getElementById('status').textContent = 'No response yet — check Apps Script execution logs or reduce file sizes.';
+      }
+    }, 50000);
+  }
 
   document.getElementById('submitBtn').addEventListener('click', prepareAndSubmit);
 </script>
