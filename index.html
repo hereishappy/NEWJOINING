@@ -14,12 +14,13 @@
     .row{display:flex;gap:12px}
     .col{flex:1}
     .files{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-    .btn-row{display:flex;gap:12px;margin-top:18px}
+    .btn-row{display:flex;gap:12px;margin-top:18px;align-items:center}
     button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:700;background:#0b78e3;color:#fff;font-size:1rem;cursor:pointer}
     .status{margin-top:14px;text-align:center;color:#222;font-weight:600}
     .status.success{color:#0b9b2b}
     .status.error{color:#d0342c}
     a.folder{display:inline-block;margin-top:8px;color:#0b78e3;word-break:break-all}
+    .download-option{font-weight:600; font-size:0.95rem; display:flex; align-items:center; gap:8px; margin-left:6px}
     @media(max-width:640px){.row{flex-direction:column}button{width:100%}}
     #submit_iframe{display:none;width:0;height:0;border:0}
   </style>
@@ -30,7 +31,7 @@
     <p style="text-align:center;margin:0 0 12px;color:#555">Fill form & upload docs. Tap Submit.</p>
 
     <!-- IMPORTANT: set action to your deployed Apps Script exec URL -->
-    <form id="empForm" method="post" action="https://script.google.com/macros/s/AKfycbzgE5pJwsA_wLlTjwaY1w4cx83H7ihfFj7PD_TZgDQaTndqqO2moAK21neCw1XYa40Ftw/exec" target="submit_iframe" enctype="application/x-www-form-urlencoded">
+    <form id="empForm" method="post" action="YOUR_APP_SCRIPT_EXEC_URL_HERE" target="submit_iframe" enctype="application/x-www-form-urlencoded">
       <label>Employee Name (As per Aadhar)<input name="employeeName" type="text" /></label>
 
       <div class="row">
@@ -106,6 +107,7 @@
       <div id="hiddenInputs" style="display:none"></div>
 
       <div class="btn-row">
+        <label class="download-option"><input id="downloadCopy" type="checkbox" checked /> Download a copy of my submission</label>
         <button id="submitBtn" type="button">Submit</button>
       </div>
 
@@ -118,6 +120,7 @@
   </div>
 
 <script>
+  // Utility to read file as dataURL
   function readFileAsDataURL(file) {
     return new Promise(function(resolve,reject){
       if (!file) return resolve(null);
@@ -128,12 +131,133 @@
     });
   }
 
+  // Build a snapshot object of all visible form fields (before reset)
+  function snapshotFormData() {
+    var form = document.getElementById('empForm');
+    var data = {};
+    Array.from(form.elements).forEach(function(el){
+      if (!el.name) return;
+      // skip injected hidden file fields (they have names starting with file_)
+      if (el.name.indexOf('file_') === 0) return;
+      // handle checkbox separately
+      if (el.type === 'checkbox') {
+        data[el.name] = el.checked;
+      } else {
+        data[el.name] = el.value || '';
+      }
+    });
+    return data;
+  }
+
+  // Create CSV content from form snapshot + result (file links)
+  function buildCSV(formSnapshot, result) {
+    // choose columns (order)
+    var cols = [
+      'Employee Name (As per Aadhar)','Date of Birth','Blood Group','Marital Status','Father Name',
+      'Permanent Address','Contact No','Emergency Contact No','Employee Relation with Emergency Contact No',
+      'Name of Emergency Contact','State','Bank Name','Account No','IFSC Code','UAN Number',
+      'ESI No/ WC POLICY','Aadhar No','Father Name (repeat)','Father DOB','Mother Name',
+      'Mother DOB','Date of Marriage','Wife Name','Wife DOB','No. Childrens',
+      'Child 1 Name','Child 1 Son/Daughter','Child 1 DOB','Child 2 Name','Child 2 Son/Daughter',
+      'Child 2 DOB','Child 3 Name','Child 3 Son/Daughter','Child 3 DOB','Education','Scaffolding Work Experience'
+    ];
+    // mapping from friendly column to form field names
+    var map = {
+      'Employee Name (As per Aadhar)': 'employeeName',
+      'Date of Birth': 'dob',
+      'Blood Group': 'bloodGroup',
+      'Marital Status': 'maritalStatus',
+      'Father Name': 'fatherName',
+      'Permanent Address': 'permanentAddress',
+      'Contact No': 'contactNo',
+      'Emergency Contact No': 'emergencyContactNo',
+      'Employee Relation with Emergency Contact No': 'emergencyRelation',
+      'Name of Emergency Contact': 'emergencyName',
+      'State': 'state',
+      'Bank Name': 'bankName',
+      'Account No': 'accountNo',
+      'IFSC Code': 'ifsc',
+      'UAN Number': 'uan',
+      'ESI No/ WC POLICY': 'esi',
+      'Aadhar No': 'aadharNo',
+      'Father Name (repeat)': 'fatherNameRepeat',
+      'Father DOB': 'fatherDob',
+      'Mother Name': 'motherName',
+      'Mother DOB': 'motherDob',
+      'Date of Marriage': 'marriageDate',
+      'Wife Name': 'wifeName',
+      'Wife DOB': 'wifeDob',
+      'No. Childrens': 'noChildren',
+      'Child 1 Name': 'child1Name',
+      'Child 1 Son/Daughter': 'child1Gender',
+      'Child 1 DOB': 'child1Dob',
+      'Child 2 Name': 'child2Name',
+      'Child 2 Son/Daughter': 'child2Gender',
+      'Child 2 DOB': 'child2Dob',
+      'Child 3 Name': 'child3Name',
+      'Child 3 Son/Daughter': 'child3Gender',
+      'Child 3 DOB': 'child3Dob',
+      'Education': 'education',
+      'Scaffolding Work Experience': 'workExperience'
+    };
+
+    // header row
+    var headers = cols.slice();
+
+    // add file/folder columns
+    headers.push('Adhaar Front Link','Adhaar Back Link','Bank Passbook Link','Passport Photo Link','Employee Folder URL','Serial','Timestamp');
+
+    // build one data row
+    var row = [];
+    for (var i=0;i<cols.length;i++) {
+      var key = cols[i];
+      var field = map[key];
+      var val = (formSnapshot[field] !== undefined) ? formSnapshot[field] : '';
+      // escape double quotes
+      val = String(val).replace(/"/g,'""');
+      row.push('"' + val + '"');
+    }
+
+    // file links from result.fileUrls (array) and folderUrl, serial, timestamp
+    var af = (result.fileUrls && result.fileUrls[0]) ? result.fileUrls[0] : '';
+    var ab = (result.fileUrls && result.fileUrls[1]) ? result.fileUrls[1] : '';
+    var bp = (result.fileUrls && result.fileUrls[2]) ? result.fileUrls[2] : '';
+    var ph = (result.fileUrls && result.fileUrls[3]) ? result.fileUrls[3] : '';
+    var folder = result.folderUrl || '';
+    var serial = result.serial || '';
+    var ts = (new Date()).toISOString();
+
+    [af,ab,bp,ph,folder,serial,ts].forEach(function(v){
+      v = String(v).replace(/"/g,'""');
+      row.push('"' + v + '"');
+    });
+
+    // join CSV
+    var csv = headers.join(',') + '\n' + row.join(',');
+    return csv;
+  }
+
+  // Trigger download of CSV in browser
+  function triggerDownload(filename, content) {
+    var blobUrl = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
+    var a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); }, 1000);
+  }
+
+  // Main submit flow
   async function prepareAndSubmit() {
     var statusEl = document.getElementById('status');
     var folderEl = document.getElementById('folderLink');
     statusEl.className = 'status';
     folderEl.innerHTML = '';
     statusEl.textContent = 'Preparing...';
+
+    // Capture snapshot for download (before we inject hidden file fields and before reset)
+    var formSnapshot = snapshotFormData();
 
     // clear previous hidden inputs
     var hidden = document.getElementById('hiddenInputs'); hidden.innerHTML = '';
@@ -164,38 +288,37 @@
 
     statusEl.textContent = 'Uploading...';
 
-    // prepare message listener and timeout
-    var responded = false;
-    var timeoutId = setTimeout(function() {
-      if (!responded) {
-        statusEl.className = 'status error';
-        statusEl.textContent = 'Completed.';
-      }
-    }, 50000); // 10s
-
+    // prepare message listener
     function onMessage(ev) {
-      // Accept messages from iframe; don't restrict origin (Apps Script origin varies)
       try {
         var data = ev.data;
-        // If the iframe sent a stringified JSON, parse it
         if (typeof data === 'string') {
-          try { data = JSON.parse(data); } catch(e) { /* keep as-is */ }
+          try { data = JSON.parse(data); } catch(e) { /* ignore */ }
         }
-        responded = true;
-        clearTimeout(timeoutId);
         window.removeEventListener('message', onMessage);
 
         if (data && data.success) {
           statusEl.className = 'status success';
           statusEl.textContent = '✅ Onboarding complete — Serial: ' + (data.serial || 'N/A');
+
           if (data.folderUrl) {
             folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
-          } else if (data.folderUrl === undefined && data.folderUrl !== null && data.folderUrl !== '') {
-            // nothing
-          } else if (data.folderUrl) {
-            folderEl.textContent = '';
           }
-          // reset form for next entry
+
+          // If download option checked, build CSV and trigger download
+          var doDownload = document.getElementById('downloadCopy').checked;
+          if (doDownload) {
+            try {
+              var csv = buildCSV(formSnapshot, data);
+              var safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim() : 'employee';
+              var fname = safeName.replace(/\s+/g,'_') + '_onboarding.csv';
+              triggerDownload(fname, csv);
+            } catch (ddErr) {
+              console.error('download error', ddErr);
+            }
+          }
+
+          // reset form after success (keep folder link visible)
           try { document.getElementById('empForm').reset(); } catch(e){}
         } else {
           statusEl.className = 'status error';
@@ -203,8 +326,6 @@
           statusEl.textContent = '❌ Save failed: ' + errText;
         }
       } catch (err) {
-        responded = true;
-        clearTimeout(timeoutId);
         window.removeEventListener('message', onMessage);
         statusEl.className = 'status error';
         statusEl.textContent = 'Error reading response';
