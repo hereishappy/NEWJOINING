@@ -27,18 +27,18 @@
     @media(max-width:640px){.row{flex-direction:column}button{width:100%}}
     /* hidden iframe */
     #submit_iframe{display:none;width:0;height:0;border:0}
-    /* PDF snapshot styling (keeps it neat when pdf generated) */
-    .pdf-root{font-family:Arial,Helvetica,sans-serif;padding:18px;color:#111}
+    /* snapshot styling for the JPEG */
+    .pdf-root{font-family:Arial,Helvetica,sans-serif;padding:18px;color:#111;background:#fff}
     .pdf-root h2{margin-top:0;color:#0b78e3}
     .pdf-table{width:100%;border-collapse:collapse;margin-top:8px}
     .pdf-table td{padding:6px;border:1px solid #ddd;vertical-align:top}
     .pdf-docs{margin-top:12px}
-    .pdf-thumb{max-width:120px;max-height:120px;border:1px solid #ddd;padding:4px;margin:6px}
+    .pdf-thumb{max-width:300px;max-height:300px;border:1px solid #ddd;padding:4px;margin:6px}
     .pdf-link{display:block;margin:6px 0;word-break:break-word}
   </style>
 
-  <!-- html2pdf bundle (includes html2canvas + jsPDF) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.9.3/dist/html2pdf.bundle.min.js"></script>
+  <!-- html2canvas for screenshot -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <div class="card" role="main" aria-labelledby="title">
@@ -177,10 +177,13 @@
     return snap;
   }
 
-  // build PDF DOM element
-  function buildPDFElement(formSnapshot, serverResult, localFiles) {
+  // build the DOM element to screenshot (same layout as previous PDF)
+  function buildSnapshotElement(formSnapshot, serverResult, localFiles) {
     const container = document.createElement('div');
     container.className = 'pdf-root';
+    container.style.width = '1000px'; // fixed width to make full-page screenshot consistent
+    container.style.boxSizing = 'border-box';
+    container.style.background = '#fff';
     container.innerHTML = '';
 
     const title = document.createElement('h2');
@@ -287,98 +290,69 @@
     return container;
   }
 
-  // generate and download PDF using html2pdf. RETURNS a Promise that resolves when save completes (or rejects)
-  function generateAndDownloadPDF(formSnapshot, serverResult, localFiles) {
+  // generate and download JPEG from snapshot element. returns Promise
+  function generateAndDownloadJPEG(formSnapshot, serverResult, localFiles) {
     return new Promise((resolve, reject) => {
       try {
         const safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim().replace(/\s+/g,'_') : 'employee_onboarding';
-        const filename = safeName + '_onboarding.pdf';
-        const el = buildPDFElement(formSnapshot, serverResult, localFiles);
-        // append off-screen
-        el.style.position = 'fixed'; el.style.left = '-9999px'; el.style.top = '0';
+        const filename = safeName + '_onboarding.jpg';
+        const el = buildSnapshotElement(formSnapshot, serverResult, localFiles);
+
+        // append off-screen but visible to renderer
+        el.style.position = 'fixed';
+        el.style.left = '-9999px';
+        el.style.top = '0';
         document.body.appendChild(el);
 
-        const opt = {
-          margin:       [10,10,10,10],
-          filename:     filename,
-          image:        { type: 'jpeg', quality: 0.95 },
-          html2canvas:  { scale: 2, useCORS: true },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // html2pdf returns a chainable object. .save() triggers download.
-        // We resolve when save promise resolves. If html2pdf fails, reject.
-        try {
-          html2pdf().set(opt).from(el).save().then(() => {
+        // use html2canvas to capture the element at a high scale for quality
+        const scale = Math.min(window.devicePixelRatio || 1, 2); // limit scale to 2 for performance
+        html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, logging: false }).then(canvas => {
+          try {
+            // convert to JPEG dataURL
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            // create download link and click
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { try { a.remove(); } catch(e){} }, 800);
+            // cleanup snapshot element
             try { document.body.removeChild(el); } catch(e){}
             resolve();
-          }).catch(err => {
+          } catch (err) {
             try { document.body.removeChild(el); } catch(e){}
             reject(err);
-          });
-        } catch (err) {
+          }
+        }).catch(err => {
           try { document.body.removeChild(el); } catch(e){}
           reject(err);
-        }
+        });
       } catch (err) {
         reject(err);
       }
     });
   }
 
-  // fallback tiny PDF using jsPDF (available via html2pdf bundle)
-  function fallbackTextPDF(formSnapshot) {
+  // fallback: download tiny text file with .jpg extension if html2canvas fails
+  function fallbackDownloadAsJpg(formSnapshot) {
     try {
       const safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim().replace(/\s+/g,'_') : 'employee_onboarding';
-      const filename = safeName + '_onboarding.pdf';
-      // jsPDF accessible as window.jspdf.jsPDF or window.jspdf?html2pdf provides window.jspdf
-      let jsPDFClass = null;
-      if (window.jspdf && window.jspdf.jsPDF) jsPDFClass = window.jspdf.jsPDF;
-      else if (window.jsPDF) jsPDFClass = window.jsPDF;
-      if (!jsPDFClass) {
-        // last resort: create a blob text and force download as .pdf (not real PDF)
-        const txt = 'Onboarding - ' + (formSnapshot.employeeName || '') + '\n\n' + JSON.stringify(formSnapshot, null, 2);
-        const blob = new Blob([txt], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-        return;
-      }
-      const doc = new jsPDFClass({ unit: 'pt', format: 'a4' });
-      const lines = [];
-      lines.push('Employee Onboarding');
-      lines.push('');
-      // simple key: value lines
-      for (const k in formSnapshot) {
-        if (!formSnapshot.hasOwnProperty(k)) continue;
-        const label = k + ': ';
-        const val = String(formSnapshot[k] || '');
-        lines.push(label + val);
-      }
-      const margin = 40;
-      const lineHeight = 12;
-      let y = margin;
-      doc.setFontSize(12);
-      for (let i=0;i<lines.length;i++) {
-        const text = lines[i];
-        doc.text(text, margin, y);
-        y += lineHeight;
-        if (y > 800) {
-          doc.addPage();
-          y = margin;
-        }
-      }
-      doc.save(filename);
+      const filename = safeName + '_onboarding.jpg';
+      const txt = 'Employee Onboarding\n\n' + JSON.stringify(formSnapshot, null, 2);
+      const blob = new Blob([txt], { type: 'image/jpeg' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('fallbackTextPDF error', err);
+      console.error('fallback jpg download failed', err);
     }
   }
 
-  // download trigger helper used elsewhere
-  function triggerDownloadPDF(formSnapshot, serverResult, localFiles) {
-    // try html2pdf first; if it fails, fallback to text PDF
-    return generateAndDownloadPDF(formSnapshot, serverResult, localFiles).catch(err => {
-      console.warn('html2pdf failed, using fallback text PDF', err);
-      fallbackTextPDF(formSnapshot);
+  // helper that tries html2canvas then falls back
+  function triggerDownloadJPEG(formSnapshot, serverResult, localFiles) {
+    return generateAndDownloadJPEG(formSnapshot, serverResult, localFiles).catch(err => {
+      console.warn('html2canvas failed, falling back to text .jpg', err);
+      fallbackDownloadAsJpg(formSnapshot);
     });
   }
 
@@ -398,7 +372,7 @@
     }
   }
 
-  // main flow with 20s forced-complete and ensured PDF download
+  // main flow with 20s forced-complete and ensured JPEG download
   document.getElementById('submitBtn').addEventListener('click', async function() {
     const statusEl = document.getElementById('status');
     const folderEl = document.getElementById('folderLink');
@@ -442,7 +416,7 @@
 
     statusEl.textContent = 'Uploading...';
 
-    // forced 20s timer: now uses guaranteed PDF download (html2pdf or fallback)
+    // forced 20s timer: now uses guaranteed JPEG download (html2canvas or fallback)
     let forcedComplete = false;
     let downloadTriggered = false;
     const forcedTimer = setTimeout(function() {
@@ -450,14 +424,13 @@
       statusEl.className = 'status success';
       statusEl.textContent = '✅ Onboarding complete (automatic)';
 
-      // ensure PDF download happens (try html2pdf -> fallback)
-      triggerDownloadPDF(formSnapshot, null, localFiles).then(() => {
+      // ensure JPEG download happens (try html2canvas -> fallback)
+      triggerDownloadJPEG(formSnapshot, null, localFiles).then(() => {
         downloadTriggered = true;
       }).catch(err => {
-        console.warn('forced PDF failed', err);
-        // fallbackTextPDF already called inside triggerDownloadPDF catch
+        console.warn('forced JPEG failed', err);
       });
-      // continue listening for server response to update folder/serial
+      // continue listening for server to update folder/serial
     }, 20000);
 
     // message listener from iframe
@@ -490,11 +463,11 @@
           statusEl.textContent = '✅ Onboarding complete — Serial: ' + (data.serial || 'N/A');
           if (data.folderUrl) folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
 
-          // generate PDF with serverResult + any localFiles
+          // generate JPEG with serverResult + any localFiles
           if (!downloadTriggered) {
-            triggerDownloadPDF(formSnapshot, data, localFiles).then(() => {
+            triggerDownloadJPEG(formSnapshot, data, localFiles).then(() => {
               downloadTriggered = true;
-            }).catch(err => { console.warn('PDF error', err); });
+            }).catch(err => { console.warn('JPEG error', err); });
           }
           try { document.getElementById('empForm').reset(); } catch(e){}
         } else {
