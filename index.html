@@ -5,72 +5,91 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Employee Onboarding</title>
   <style>
-    body{font-family:Inter,Arial,sans-serif;background:#f5f6f8;margin:0;padding:12px}
-    .card{max-width:920px;margin:16px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.08)}
-    h1{color:#0b78e3;text-align:center;margin:0 0 12px;font-size:1.4rem}
+    :root{--primary:#0b78e3;--ok:#0b9b2b;--err:#d0342c}
+    body{font-family:Inter,Arial,sans-serif;background:#f5f6f8;margin:0;padding:14px}
+    .card{max-width:920px;margin:18px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 22px rgba(0,0,0,0.08)}
+    h1{color:var(--primary);text-align:center;margin:0 0 12px;font-size:1.4rem}
     label{display:block;margin-top:12px;font-weight:600}
     input,select,textarea{width:100%;padding:14px;border-radius:10px;border:1px solid #d4d7db;margin-top:8px;font-size:1rem;box-sizing:border-box}
-    textarea{min-height:100px}
+    textarea{min-height:110px}
     .row{display:flex;gap:12px}
     .col{flex:1}
     .files{display:flex;flex-direction:column;gap:8px;margin-top:8px}
     .btn-row{display:flex;gap:12px;margin-top:18px;align-items:center}
-    button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:700;background:#0b78e3;color:#fff;font-size:1rem;cursor:pointer}
+    button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:700;background:var(--primary);color:#fff;font-size:1rem;cursor:pointer}
+    button[disabled]{opacity:.6;cursor:default}
     .status{margin-top:14px;text-align:center;color:#222;font-weight:600}
-    .status.success{color:#0b9b2b}
-    .status.error{color:#d0342c}
-    a.folder{display:inline-block;margin-top:8px;color:#0b78e3;word-break:break-all}
-    .download-option{font-weight:600; font-size:0.95rem; display:flex; align-items:center; gap:8px; margin-left:6px}
+    .status.success{color:var(--ok)}
+    .status.error{color:var(--err)}
+    a.folder{display:inline-block;margin-top:8px;color:var(--primary);word-break:break-all}
+    .spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-left:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
     @media(max-width:640px){.row{flex-direction:column}button{width:100%}}
+    /* hidden iframe */
     #submit_iframe{display:none;width:0;height:0;border:0}
   </style>
 </head>
 <body>
-  <div class="card" role="main">
-    <h1>Employee Onboarding</h1>
-    <p style="text-align:center;margin:0 0 12px;color:#555">Fill form & upload docs. Tap Submit.</p>
+  <div class="card" role="main" aria-labelledby="title">
+    <h1 id="title">Employee Onboarding</h1>
+    <p style="text-align:center;margin:6px 0 12px;color:#555">Fill details & upload documents. Tap Submit.</p>
 
-    <!-- IMPORTANT: set action to your deployed Apps Script exec URL -->
-    <form id="empForm" method="post" action="YOUR_APP_SCRIPT_EXEC_URL_HERE" target="submit_iframe" enctype="application/x-www-form-urlencoded">
-      <label>Employee Name (As per Aadhar)<input name="employeeName" type="text" /></label>
+    <!-- ACTION set to the Apps Script exec URL you provided -->
+    <form id="empForm" method="post" action="https://script.google.com/macros/s/AKfycbzgE5pJwsA_wLlTjwaY1w4cx83H7ihfFj7PD_TZgDQaTndqqO2moAK21neCw1XYa40Ftw/exec" target="submit_iframe" enctype="application/x-www-form-urlencoded" autocomplete="off">
+      <label>Employee Name (As per Aadhar)
+        <input name="employeeName" type="text" placeholder="Full name as on Aadhar" />
+      </label>
 
       <div class="row">
-        <div class="col"><label>Date of Birth<input name="dob" type="date" /></label></div>
-        <div class="col"><label>Blood Group<input name="bloodGroup" type="text" placeholder="O+" /></label></div>
+        <div class="col">
+          <label>Date of Birth
+            <input name="dob" type="date" />
+          </label>
+        </div>
+        <div class="col">
+          <label>Blood Group
+            <input name="bloodGroup" type="text" placeholder="O+" />
+          </label>
+        </div>
       </div>
 
       <label>Marital Status
         <select name="maritalStatus"><option value="">-- select --</option><option>Single</option><option>Married</option><option>Widowed</option><option>Divorced</option></select>
       </label>
 
-      <label>Father name<input name="fatherName" type="text" /></label>
-      <label>Permanent Address<textarea name="permanentAddress"></textarea></label>
+      <label>Father name
+        <input name="fatherName" type="text" />
+      </label>
+      <label>Permanent Address
+        <textarea name="permanentAddress" placeholder="House, Street, City, PIN"></textarea>
+      </label>
 
       <div class="row">
-        <div class="col"><label>Contact No<input name="contactNo" type="text" /></label></div>
-        <div class="col"><label>Emergency Contact No<input name="emergencyContactNo" type="text" /></label></div>
+        <div class="col"><label>Contact No<input name="contactNo" type="text" inputmode="tel" /></label></div>
+        <div class="col"><label>Emergency Contact No<input name="emergencyContactNo" type="text" inputmode="tel" /></label></div>
       </div>
 
       <label>Relation with Emergency Contact<input name="emergencyRelation" type="text" /></label>
       <label>Name of Emergency Contact<input name="emergencyName" type="text" /></label>
       <label>State<input name="state" type="text" /></label>
 
-      <h3 style="margin-top:12px">Bank & Govt</h3>
+      <h3 style="margin-top:12px">Bank & Govt Info</h3>
       <label>Bank Name<input name="bankName" type="text" /></label>
       <label>Account No<input name="accountNo" type="text" /></label>
       <label>IFSC Code<input name="ifsc" type="text" /></label>
       <label>UAN Number<input name="uan" type="text" /></label>
       <label>ESI No/ WC POLICY<input name="esi" type="text" /></label>
-      <label>Aadhar No<input name="aadharNo" type="text" /></label>
+      <label>Aadhar No<input name="aadharNo" type="text" inputmode="numeric" /></label>
 
       <h3 style="margin-top:10px">Family</h3>
       <label>Father name (repeat)<input name="fatherNameRepeat" type="text" /></label>
+
       <div class="row">
         <div class="col"><label>Father DOB<input name="fatherDob" type="date" /></label></div>
         <div class="col"><label>Mother DOB<input name="motherDob" type="date" /></label></div>
       </div>
-      <label>Mother Name<input name="motherName" type="text" /></label>
 
+      <label>Mother Name<input name="motherName" type="text" /></label>
       <label>Date of Marriage<input name="marriageDate" type="date" /></label>
       <label>Wife Name<input name="wifeName" type="text" /></label>
       <label>Wife DOB<input name="wifeDob" type="date" /></label>
@@ -103,163 +122,57 @@
         <label>Passport Size Photo<input id="photo" type="file" accept="image/*" /></label>
       </div>
 
-      <!-- hidden inputs injected before submit -->
+      <!-- hidden inputs for base64 files -->
       <div id="hiddenInputs" style="display:none"></div>
 
-      <div class="btn-row">
-        <label class="download-option"><input id="downloadCopy" type="checkbox" checked /> Download a copy of my submission</label>
+      <div class="btn-row" aria-live="polite">
         <button id="submitBtn" type="button">Submit</button>
       </div>
 
-      <div id="status" class="status" aria-live="polite"></div>
-      <div id="folderLink" style="text-align:center"></div>
+      <div id="status" class="status" aria-atomic="true"></div>
+      <div id="folderLink" style="text-align:center;margin-top:8px"></div>
     </form>
 
-    <!-- hidden iframe used as form target to avoid navigation & CORS -->
+    <!-- hidden iframe -->
     <iframe name="submit_iframe" id="submit_iframe"></iframe>
   </div>
 
 <script>
-  // Utility to read file as dataURL
+  // read file as dataURL
   function readFileAsDataURL(file) {
-    return new Promise(function(resolve,reject){
+    return new Promise(function(resolve, reject) {
       if (!file) return resolve(null);
-      var r = new FileReader();
-      r.onload = ()=>resolve(r.result);
-      r.onerror = ()=>reject(new Error('file read error'));
-      r.readAsDataURL(file);
+      var reader = new FileReader();
+      reader.onload = function(e) { resolve(e.target.result); };
+      reader.onerror = function(e) { reject(e); };
+      reader.readAsDataURL(file);
     });
   }
 
-  // Build a snapshot object of all visible form fields (before reset)
-  function snapshotFormData() {
-    var form = document.getElementById('empForm');
-    var data = {};
-    Array.from(form.elements).forEach(function(el){
-      if (!el.name) return;
-      // skip injected hidden file fields (they have names starting with file_)
-      if (el.name.indexOf('file_') === 0) return;
-      // handle checkbox separately
-      if (el.type === 'checkbox') {
-        data[el.name] = el.checked;
-      } else {
-        data[el.name] = el.value || '';
-      }
-    });
-    return data;
-  }
-
-  // Create CSV content from form snapshot + result (file links)
-  function buildCSV(formSnapshot, result) {
-    // choose columns (order)
-    var cols = [
-      'Employee Name (As per Aadhar)','Date of Birth','Blood Group','Marital Status','Father Name',
-      'Permanent Address','Contact No','Emergency Contact No','Employee Relation with Emergency Contact No',
-      'Name of Emergency Contact','State','Bank Name','Account No','IFSC Code','UAN Number',
-      'ESI No/ WC POLICY','Aadhar No','Father Name (repeat)','Father DOB','Mother Name',
-      'Mother DOB','Date of Marriage','Wife Name','Wife DOB','No. Childrens',
-      'Child 1 Name','Child 1 Son/Daughter','Child 1 DOB','Child 2 Name','Child 2 Son/Daughter',
-      'Child 2 DOB','Child 3 Name','Child 3 Son/Daughter','Child 3 DOB','Education','Scaffolding Work Experience'
-    ];
-    // mapping from friendly column to form field names
-    var map = {
-      'Employee Name (As per Aadhar)': 'employeeName',
-      'Date of Birth': 'dob',
-      'Blood Group': 'bloodGroup',
-      'Marital Status': 'maritalStatus',
-      'Father Name': 'fatherName',
-      'Permanent Address': 'permanentAddress',
-      'Contact No': 'contactNo',
-      'Emergency Contact No': 'emergencyContactNo',
-      'Employee Relation with Emergency Contact No': 'emergencyRelation',
-      'Name of Emergency Contact': 'emergencyName',
-      'State': 'state',
-      'Bank Name': 'bankName',
-      'Account No': 'accountNo',
-      'IFSC Code': 'ifsc',
-      'UAN Number': 'uan',
-      'ESI No/ WC POLICY': 'esi',
-      'Aadhar No': 'aadharNo',
-      'Father Name (repeat)': 'fatherNameRepeat',
-      'Father DOB': 'fatherDob',
-      'Mother Name': 'motherName',
-      'Mother DOB': 'motherDob',
-      'Date of Marriage': 'marriageDate',
-      'Wife Name': 'wifeName',
-      'Wife DOB': 'wifeDob',
-      'No. Childrens': 'noChildren',
-      'Child 1 Name': 'child1Name',
-      'Child 1 Son/Daughter': 'child1Gender',
-      'Child 1 DOB': 'child1Dob',
-      'Child 2 Name': 'child2Name',
-      'Child 2 Son/Daughter': 'child2Gender',
-      'Child 2 DOB': 'child2Dob',
-      'Child 3 Name': 'child3Name',
-      'Child 3 Son/Daughter': 'child3Gender',
-      'Child 3 DOB': 'child3Dob',
-      'Education': 'education',
-      'Scaffolding Work Experience': 'workExperience'
-    };
-
-    // header row
-    var headers = cols.slice();
-
-    // add file/folder columns
-    headers.push('Adhaar Front Link','Adhaar Back Link','Bank Passbook Link','Passport Photo Link','Employee Folder URL','Serial','Timestamp');
-
-    // build one data row
-    var row = [];
-    for (var i=0;i<cols.length;i++) {
-      var key = cols[i];
-      var field = map[key];
-      var val = (formSnapshot[field] !== undefined) ? formSnapshot[field] : '';
-      // escape double quotes
-      val = String(val).replace(/"/g,'""');
-      row.push('"' + val + '"');
+  // disable/enable submit
+  function setSubmitting(isSubmitting) {
+    var btn = document.getElementById('submitBtn');
+    if (isSubmitting) {
+      btn.setAttribute('disabled','disabled');
+      btn.innerHTML = 'Uploading<span class="spinner" aria-hidden="true"></span>';
+    } else {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = 'Submit';
     }
-
-    // file links from result.fileUrls (array) and folderUrl, serial, timestamp
-    var af = (result.fileUrls && result.fileUrls[0]) ? result.fileUrls[0] : '';
-    var ab = (result.fileUrls && result.fileUrls[1]) ? result.fileUrls[1] : '';
-    var bp = (result.fileUrls && result.fileUrls[2]) ? result.fileUrls[2] : '';
-    var ph = (result.fileUrls && result.fileUrls[3]) ? result.fileUrls[3] : '';
-    var folder = result.folderUrl || '';
-    var serial = result.serial || '';
-    var ts = (new Date()).toISOString();
-
-    [af,ab,bp,ph,folder,serial,ts].forEach(function(v){
-      v = String(v).replace(/"/g,'""');
-      row.push('"' + v + '"');
-    });
-
-    // join CSV
-    var csv = headers.join(',') + '\n' + row.join(',');
-    return csv;
   }
 
-  // Trigger download of CSV in browser
-  function triggerDownload(filename, content) {
-    var blobUrl = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
-    var a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){ document.body.removeChild(a); }, 1000);
-  }
-
-  // Main submit flow
+  // prepare hidden file inputs and submit
   async function prepareAndSubmit() {
     var statusEl = document.getElementById('status');
     var folderEl = document.getElementById('folderLink');
     statusEl.className = 'status';
-    folderEl.innerHTML = '';
     statusEl.textContent = 'Preparing...';
+    folderEl.innerHTML = '';
 
-    // Capture snapshot for download (before we inject hidden file fields and before reset)
-    var formSnapshot = snapshotFormData();
+    // disable submit
+    setSubmitting(true);
 
-    // clear previous hidden inputs
+    // remove previous hidden inputs
     var hidden = document.getElementById('hiddenInputs'); hidden.innerHTML = '';
 
     var fileMap = [
@@ -269,26 +182,31 @@
       { id: 'photo', type: 'photo' }
     ];
 
-    // convert files to base64 and store as hidden fields
-    for (let entry of fileMap) {
-      const el = document.getElementById(entry.id);
-      if (el && el.files && el.files[0]) {
-        try {
+    try {
+      for (let entry of fileMap) {
+        const el = document.getElementById(entry.id);
+        if (el && el.files && el.files[0]) {
           const f = el.files[0];
-          const b64 = await readFileAsDataURL(f);
-          const i1 = document.createElement('input'); i1.type='hidden'; i1.name = 'file_' + entry.type + '_b64'; i1.value = b64;
-          const i2 = document.createElement('input'); i2.type='hidden'; i2.name = 'file_' + entry.type + '_name'; i2.value = f.name;
-          const i3 = document.createElement('input'); i3.type='hidden'; i3.name = 'file_' + entry.type + '_type'; i3.value = f.type || 'application/octet-stream';
-          hidden.appendChild(i1); hidden.appendChild(i2); hidden.appendChild(i3);
-        } catch(e) {
-          console.error('file read failed', e);
+          // convert
+          const dataUrl = await readFileAsDataURL(f);
+          // inject three hidden inputs per file
+          const b64 = document.createElement('input'); b64.type='hidden'; b64.name = 'file_' + entry.type + '_b64'; b64.value = dataUrl;
+          const name = document.createElement('input'); name.type='hidden'; name.name = 'file_' + entry.type + '_name'; name.value = f.name;
+          const m = document.createElement('input'); m.type='hidden'; m.name = 'file_' + entry.type + '_type'; m.value = f.type || 'application/octet-stream';
+          hidden.appendChild(b64); hidden.appendChild(name); hidden.appendChild(m);
         }
       }
+    } catch (err) {
+      console.error('file read error', err);
+      statusEl.className = 'status error';
+      statusEl.textContent = 'File read error. Try smaller files or different browser.';
+      setSubmitting(false);
+      return;
     }
 
+    // set status and attach message listener
     statusEl.textContent = 'Uploading...';
 
-    // prepare message listener
     function onMessage(ev) {
       try {
         var data = ev.data;
@@ -296,47 +214,39 @@
           try { data = JSON.parse(data); } catch(e) { /* ignore */ }
         }
         window.removeEventListener('message', onMessage);
+        setSubmitting(false);
 
         if (data && data.success) {
           statusEl.className = 'status success';
           statusEl.textContent = '✅ Onboarding complete — Serial: ' + (data.serial || 'N/A');
-
           if (data.folderUrl) {
             folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
           }
-
-          // If download option checked, build CSV and trigger download
-          var doDownload = document.getElementById('downloadCopy').checked;
-          if (doDownload) {
-            try {
-              var csv = buildCSV(formSnapshot, data);
-              var safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim() : 'employee';
-              var fname = safeName.replace(/\s+/g,'_') + '_onboarding.csv';
-              triggerDownload(fname, csv);
-            } catch (ddErr) {
-              console.error('download error', ddErr);
-            }
-          }
-
-          // reset form after success (keep folder link visible)
           try { document.getElementById('empForm').reset(); } catch(e){}
         } else {
           statusEl.className = 'status error';
-          var errText = (data && data.error) ? data.error : JSON.stringify(data);
-          statusEl.textContent = '❌ Save failed: ' + errText;
+          statusEl.textContent = '❌ Save failed: ' + ((data && data.error) ? data.error : JSON.stringify(data));
         }
       } catch (err) {
         window.removeEventListener('message', onMessage);
+        setSubmitting(false);
         statusEl.className = 'status error';
-        statusEl.textContent = 'Error reading response';
+        statusEl.textContent = 'Error reading server response';
         console.error('message handler error', err);
       }
     }
 
     window.addEventListener('message', onMessage, false);
 
-    // submit the form to the hidden iframe
-    document.getElementById('empForm').submit();
+    // submit form to hidden iframe
+    try {
+      document.getElementById('empForm').submit();
+    } catch (err) {
+      window.removeEventListener('message', onMessage);
+      setSubmitting(false);
+      statusEl.className = 'status error';
+      statusEl.textContent = 'Submission failed: ' + err.message;
+    }
   }
 
   document.getElementById('submitBtn').addEventListener('click', prepareAndSubmit);
