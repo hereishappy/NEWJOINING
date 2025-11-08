@@ -7,7 +7,7 @@
   <style>
     body{font-family:Inter,Arial,sans-serif;background:#f5f6f8;margin:0;padding:12px}
     .card{max-width:920px;margin:16px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.08)}
-    h1{color:#0b78e3;text-align:center;margin:0 0 12px;font-size:1.5rem}
+    h1{color:#0b78e3;text-align:center;margin:0 0 12px;font-size:1.4rem}
     label{display:block;margin-top:12px;font-weight:600}
     input,select,textarea{width:100%;padding:14px;border-radius:10px;border:1px solid #d4d7db;margin-top:8px;font-size:1rem;box-sizing:border-box}
     textarea{min-height:100px}
@@ -16,9 +16,11 @@
     .files{display:flex;flex-direction:column;gap:8px;margin-top:8px}
     .btn-row{display:flex;gap:12px;margin-top:18px}
     button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:700;background:#0b78e3;color:#fff;font-size:1rem;cursor:pointer}
-    .status{margin-top:14px;text-align:center;color:#222}
+    .status{margin-top:14px;text-align:center;color:#222;font-weight:600}
+    .status.success{color:#0b9b2b}
+    .status.error{color:#d0342c}
+    a.folder{display:inline-block;margin-top:8px;color:#0b78e3;word-break:break-all}
     @media(max-width:640px){.row{flex-direction:column}button{width:100%}}
-    /* iframe hidden visually but visible for debugging if needed */
     #submit_iframe{display:none;width:0;height:0;border:0}
   </style>
 </head>
@@ -107,7 +109,8 @@
         <button id="submitBtn" type="button">Submit</button>
       </div>
 
-      <div id="status" class="status"></div>
+      <div id="status" class="status" aria-live="polite"></div>
+      <div id="folderLink" style="text-align:center"></div>
     </form>
 
     <!-- hidden iframe used as form target to avoid navigation & CORS -->
@@ -126,10 +129,13 @@
   }
 
   async function prepareAndSubmit() {
-    var status = document.getElementById('status');
-    status.textContent = 'Preparing...';
+    var statusEl = document.getElementById('status');
+    var folderEl = document.getElementById('folderLink');
+    statusEl.className = 'status';
+    folderEl.innerHTML = '';
+    statusEl.textContent = 'Preparing...';
 
-    // remove previous hidden inputs
+    // clear previous hidden inputs
     var hidden = document.getElementById('hiddenInputs'); hidden.innerHTML = '';
 
     var fileMap = [
@@ -139,13 +145,13 @@
       { id: 'photo', type: 'photo' }
     ];
 
+    // convert files to base64 and store as hidden fields
     for (let entry of fileMap) {
       const el = document.getElementById(entry.id);
       if (el && el.files && el.files[0]) {
         try {
           const f = el.files[0];
           const b64 = await readFileAsDataURL(f);
-          // create hidden inputs for base64, name, type
           const i1 = document.createElement('input'); i1.type='hidden'; i1.name = 'file_' + entry.type + '_b64'; i1.value = b64;
           const i2 = document.createElement('input'); i2.type='hidden'; i2.name = 'file_' + entry.type + '_name'; i2.value = f.name;
           const i3 = document.createElement('input'); i3.type='hidden'; i3.name = 'file_' + entry.type + '_type'; i3.value = f.type || 'application/octet-stream';
@@ -156,39 +162,60 @@
       }
     }
 
-    status.textContent = 'Uploading...';
+    statusEl.textContent = 'Uploading...';
 
-    // listen for message from iframe (Apps Script returns HTML that posts a message)
+    // prepare message listener and timeout
+    var responded = false;
+    var timeoutId = setTimeout(function() {
+      if (!responded) {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'No response yet — check Apps Script execution logs or reduce file sizes.';
+      }
+    }, 50000); // 50s
+
     function onMessage(ev) {
+      // Accept messages from iframe; don't restrict origin (Apps Script origin varies)
       try {
         var data = ev.data;
+        // If the iframe sent a stringified JSON, parse it
         if (typeof data === 'string') {
-          try { data = JSON.parse(data); } catch(e) { /* ignore */ }
+          try { data = JSON.parse(data); } catch(e) { /* keep as-is */ }
         }
-        var s = document.getElementById('status');
-        if (data && data.success) {
-          s.textContent = 'Saved. Serial: ' + (data.serial || 'N/A');
-          document.getElementById('empForm').reset();
-        } else {
-          s.textContent = 'Save failed: ' + (data && data.error ? data.error : JSON.stringify(data));
-        }
-      } catch(err) {
-        document.getElementById('status').textContent = 'Error parsing response';
-      } finally {
+        responded = true;
+        clearTimeout(timeoutId);
         window.removeEventListener('message', onMessage);
+
+        if (data && data.success) {
+          statusEl.className = 'status success';
+          statusEl.textContent = '✅ Onboarding complete — Serial: ' + (data.serial || 'N/A');
+          if (data.folderUrl) {
+            folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
+          } else if (data.folderUrl === undefined && data.folderUrl !== null && data.folderUrl !== '') {
+            // nothing
+          } else if (data.folderUrl) {
+            folderEl.textContent = '';
+          }
+          // reset form for next entry
+          try { document.getElementById('empForm').reset(); } catch(e){}
+        } else {
+          statusEl.className = 'status error';
+          var errText = (data && data.error) ? data.error : JSON.stringify(data);
+          statusEl.textContent = '❌ Save failed: ' + errText;
+        }
+      } catch (err) {
+        responded = true;
+        clearTimeout(timeoutId);
+        window.removeEventListener('message', onMessage);
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Error reading response';
+        console.error('message handler error', err);
       }
     }
-    window.addEventListener('message', onMessage);
 
-    // submit form to Apps Script endpoint (target is iframe)
+    window.addEventListener('message', onMessage, false);
+
+    // submit the form to the hidden iframe
     document.getElementById('empForm').submit();
-
-    // safety timeout: if no response in 50s, show message
-    setTimeout(function(){
-      if (document.getElementById('status').textContent === 'Uploading...') {
-        document.getElementById('status').textContent = 'No response yet — check Apps Script execution logs or reduce file sizes.';
-      }
-    }, 50000);
   }
 
   document.getElementById('submitBtn').addEventListener('click', prepareAndSubmit);
