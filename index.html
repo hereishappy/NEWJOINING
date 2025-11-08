@@ -45,7 +45,7 @@
     <h1 id="title">Employee Onboarding</h1>
     <p style="text-align:center;margin:6px 0 12px;color:#555">Fill details & upload documents. Tap Submit.</p>
 
-    <!-- ACTION: your Apps Script Web App exec URL (unchanged) -->
+    <!-- ACTION: your Apps Script Web App exec URL -->
     <form id="empForm" method="post"
           action="https://script.google.com/macros/s/AKfycbzgE5pJwsA_wLlTjwaY1w4cx83H7ihfFj7PD_TZgDQaTndqqO2moAK21neCw1XYa40Ftw/exec"
           target="submit_iframe" enctype="application/x-www-form-urlencoded" autocomplete="off">
@@ -177,11 +177,11 @@
     return snap;
   }
 
-  // build PDF HTML content element and return it
+  // build PDF DOM element
   function buildPDFElement(formSnapshot, serverResult, localFiles) {
     const container = document.createElement('div');
     container.className = 'pdf-root';
-    container.innerHTML = ''; // start empty
+    container.innerHTML = '';
 
     const title = document.createElement('h2');
     title.textContent = 'Employee Onboarding — Submission';
@@ -191,10 +191,8 @@
     meta.textContent = 'Generated: ' + new Date().toLocaleString();
     container.appendChild(meta);
 
-    // main table
     const table = document.createElement('table');
     table.className = 'pdf-table';
-    // helper to add row: label, value
     function addRow(label, value) {
       const tr = document.createElement('tr');
       const td1 = document.createElement('td'); td1.style.width='40%'; td1.textContent = label;
@@ -202,7 +200,6 @@
       tr.appendChild(td1); tr.appendChild(td2); table.appendChild(tr);
     }
 
-    // mapping fields to friendly labels (keeps order)
     const fields = [
       ['Employee Name (As per Aadhar)','employeeName'],
       ['Date of Birth','dob'],
@@ -242,25 +239,18 @@
       ['Scaffolding Work Experience','workExperience']
     ];
 
-    for (const f of fields) {
-      addRow(f[0], formSnapshot[f[1]]);
-    }
+    for (const f of fields) addRow(f[0], formSnapshot[f[1]]);
 
-    // server info rows if available
     if (serverResult && serverResult.serial) addRow('Serial', serverResult.serial);
     if (serverResult && serverResult.folderUrl) addRow('Employee Folder URL', serverResult.folderUrl);
 
     container.appendChild(table);
 
-    // Documents section
-    const docs = document.createElement('div');
-    docs.className = 'pdf-docs';
+    const docs = document.createElement('div'); docs.className = 'pdf-docs';
     const docsTitle = document.createElement('h3'); docsTitle.textContent = 'Documents';
     docs.appendChild(docsTitle);
-
     const docsInner = document.createElement('div');
 
-    // prefer server file URLs (if present)
     if (serverResult && serverResult.fileUrls && serverResult.fileUrls.length) {
       const arr = serverResult.fileUrls;
       const labels = ['Adhaar Front','Adhaar Back','Bank Passbook','Passport Photo'];
@@ -273,13 +263,11 @@
         docsInner.appendChild(link);
       }
     } else {
-      // show any local images/dataURLs available
       const labels = { adhaarFront:'Adhaar Front', adhaarBack:'Adhaar Back', bankPassbook:'Bank Passbook', photo:'Passport Photo' };
       let any = false;
       for (const key in labels) {
         if (localFiles && localFiles[key]) {
           any = true;
-          // if PDF generation with images, add image tag
           const img = document.createElement('img');
           img.src = localFiles[key];
           img.alt = labels[key];
@@ -289,8 +277,7 @@
         }
       }
       if (!any) {
-        const none = document.createElement('div'); none.textContent = 'No documents attached.';
-        docsInner.appendChild(none);
+        const none = document.createElement('div'); none.textContent = 'No documents attached.'; docsInner.appendChild(none);
       }
     }
 
@@ -300,44 +287,118 @@
     return container;
   }
 
-  // generate and download PDF via html2pdf
+  // generate and download PDF using html2pdf. RETURNS a Promise that resolves when save completes (or rejects)
   function generateAndDownloadPDF(formSnapshot, serverResult, localFiles) {
-    const safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim().replace(/\s+/g,'_') : 'employee_onboarding';
-    const filename = safeName + '_onboarding.pdf';
+    return new Promise((resolve, reject) => {
+      try {
+        const safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim().replace(/\s+/g,'_') : 'employee_onboarding';
+        const filename = safeName + '_onboarding.pdf';
+        const el = buildPDFElement(formSnapshot, serverResult, localFiles);
+        // append off-screen
+        el.style.position = 'fixed'; el.style.left = '-9999px'; el.style.top = '0';
+        document.body.appendChild(el);
 
-    // build element
-    const el = buildPDFElement(formSnapshot, serverResult, localFiles);
+        const opt = {
+          margin:       [10,10,10,10],
+          filename:     filename,
+          image:        { type: 'jpeg', quality: 0.95 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-    // append invisibly to DOM
-    el.style.position = 'fixed'; el.style.left = '-9999px'; el.style.top = '0';
-    document.body.appendChild(el);
+        // html2pdf returns a chainable object. .save() triggers download.
+        // We resolve when save promise resolves. If html2pdf fails, reject.
+        try {
+          html2pdf().set(opt).from(el).save().then(() => {
+            try { document.body.removeChild(el); } catch(e){}
+            resolve();
+          }).catch(err => {
+            try { document.body.removeChild(el); } catch(e){}
+            reject(err);
+          });
+        } catch (err) {
+          try { document.body.removeChild(el); } catch(e){}
+          reject(err);
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 
-    // options: higher scale for better quality
-    const opt = {
-      margin:       [10,10,10,10], // mm
-      filename:     filename,
-      image:        { type: 'jpeg', quality: 0.95 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    // generate and save
+  // fallback tiny PDF using jsPDF (available via html2pdf bundle)
+  function fallbackTextPDF(formSnapshot) {
     try {
-      html2pdf().set(opt).from(el).save().then(() => {
-        // cleanup
-        try { document.body.removeChild(el); } catch(e){}
-      }).catch(err => {
-        console.error('pdf error', err);
-        try { document.body.removeChild(el); } catch(e){}
-      });
+      const safeName = (formSnapshot.employeeName && formSnapshot.employeeName.trim()) ? formSnapshot.employeeName.trim().replace(/\s+/g,'_') : 'employee_onboarding';
+      const filename = safeName + '_onboarding.pdf';
+      // jsPDF accessible as window.jspdf.jsPDF or window.jspdf?html2pdf provides window.jspdf
+      let jsPDFClass = null;
+      if (window.jspdf && window.jspdf.jsPDF) jsPDFClass = window.jspdf.jsPDF;
+      else if (window.jsPDF) jsPDFClass = window.jsPDF;
+      if (!jsPDFClass) {
+        // last resort: create a blob text and force download as .pdf (not real PDF)
+        const txt = 'Onboarding - ' + (formSnapshot.employeeName || '') + '\n\n' + JSON.stringify(formSnapshot, null, 2);
+        const blob = new Blob([txt], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        return;
+      }
+      const doc = new jsPDFClass({ unit: 'pt', format: 'a4' });
+      const lines = [];
+      lines.push('Employee Onboarding');
+      lines.push('');
+      // simple key: value lines
+      for (const k in formSnapshot) {
+        if (!formSnapshot.hasOwnProperty(k)) continue;
+        const label = k + ': ';
+        const val = String(formSnapshot[k] || '');
+        lines.push(label + val);
+      }
+      const margin = 40;
+      const lineHeight = 12;
+      let y = margin;
+      doc.setFontSize(12);
+      for (let i=0;i<lines.length;i++) {
+        const text = lines[i];
+        doc.text(text, margin, y);
+        y += lineHeight;
+        if (y > 800) {
+          doc.addPage();
+          y = margin;
+        }
+      }
+      doc.save(filename);
     } catch (err) {
-      console.error('pdf generation exception', err);
-      try { document.body.removeChild(el); } catch(e){}
+      console.error('fallbackTextPDF error', err);
     }
   }
 
-  // build PDF from snapshot when forced or when server returns
-  // Main submission flow (with 20s forced-complete) plus localFiles capture
+  // download trigger helper used elsewhere
+  function triggerDownloadPDF(formSnapshot, serverResult, localFiles) {
+    // try html2pdf first; if it fails, fallback to text PDF
+    return generateAndDownloadPDF(formSnapshot, serverResult, localFiles).catch(err => {
+      console.warn('html2pdf failed, using fallback text PDF', err);
+      fallbackTextPDF(formSnapshot);
+    });
+  }
+
+  // UI helpers
+  function snapshotFormDataSimple() {
+    return snapshotFormData();
+  }
+
+  function setSubmitting(isSubmitting) {
+    const btn = document.getElementById('submitBtn');
+    if (isSubmitting) {
+      btn.setAttribute('disabled','disabled');
+      btn.innerHTML = 'Uploading <span class="spinner" aria-hidden="true"></span>';
+    } else {
+      btn.removeAttribute('disabled');
+      btn.innerHTML = 'Submit';
+    }
+  }
+
+  // main flow with 20s forced-complete and ensured PDF download
   document.getElementById('submitBtn').addEventListener('click', async function() {
     const statusEl = document.getElementById('status');
     const folderEl = document.getElementById('folderLink');
@@ -345,36 +406,26 @@
     statusEl.textContent = 'Preparing...';
     folderEl.innerHTML = '';
 
-    // UI lock
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.setAttribute('disabled','disabled');
-    submitBtn.innerHTML = 'Uploading <span class="spinner" aria-hidden="true"></span>';
+    setSubmitting(true);
 
-    // snapshot form for PDF
-    const formSnapshot = snapshotFormData();
-
-    // localFiles map to keep data URLs for images if forced-complete fires before server
+    const formSnapshot = snapshotFormDataSimple();
     const localFiles = {};
 
-    // prepare hidden inputs with base64 files (and store local dataurls)
-    const hidden = document.getElementById('hiddenInputs');
-    hidden.innerHTML = '';
+    // prepare hidden file inputs
+    const hidden = document.getElementById('hiddenInputs'); hidden.innerHTML = '';
     const fileMap = [
       { id: 'adhaarFront', type: 'adhaarFront' },
       { id: 'adhaarBack',  type: 'adhaarBack' },
       { id: 'bankPassbook', type: 'bankPassbook' },
       { id: 'photo', type: 'photo' }
     ];
-
     try {
       for (let entry of fileMap) {
         const el = document.getElementById(entry.id);
         if (el && el.files && el.files[0]) {
           const f = el.files[0];
           const dataUrl = await readFileAsDataURL(f);
-          // store locally for PDF if needed
           localFiles[entry.type] = dataUrl;
-          // inject hidden fields for server
           const b64 = document.createElement('input'); b64.type='hidden'; b64.name = 'file_' + entry.type + '_b64'; b64.value = dataUrl;
           const nm = document.createElement('input'); nm.type='hidden'; nm.name = 'file_' + entry.type + '_name'; nm.value = f.name;
           const mt = document.createElement('input'); mt.type='hidden'; mt.name = 'file_' + entry.type + '_type'; mt.value = f.type || 'application/octet-stream';
@@ -385,14 +436,13 @@
       console.error('file read fail', err);
       statusEl.className = 'status error';
       statusEl.textContent = 'File read error. Try smaller files or different browser.';
-      submitBtn.removeAttribute('disabled');
-      submitBtn.innerHTML = 'Submit';
+      setSubmitting(false);
       return;
     }
 
     statusEl.textContent = 'Uploading...';
 
-    // forced 20s timer
+    // forced 20s timer: now uses guaranteed PDF download (html2pdf or fallback)
     let forcedComplete = false;
     let downloadTriggered = false;
     const forcedTimer = setTimeout(function() {
@@ -400,57 +450,51 @@
       statusEl.className = 'status success';
       statusEl.textContent = '✅ Onboarding complete (automatic)';
 
-      // generate PDF from snapshot + localFiles
-      try {
-        generateAndDownloadPDF(formSnapshot, null, localFiles);
+      // ensure PDF download happens (try html2pdf -> fallback)
+      triggerDownloadPDF(formSnapshot, null, localFiles).then(() => {
         downloadTriggered = true;
-      } catch (pdfErr) {
-        console.error('forced PDF error', pdfErr);
-      }
-      // keep listening for server to update folder/serial, but do not revert forced success
+      }).catch(err => {
+        console.warn('forced PDF failed', err);
+        // fallbackTextPDF already called inside triggerDownloadPDF catch
+      });
+      // continue listening for server response to update folder/serial
     }, 20000);
 
-    // listen for server message from iframe
+    // message listener from iframe
     function onMessage(ev) {
       try {
         let data = ev.data;
         if (typeof data === 'string') {
           try { data = JSON.parse(data); } catch(e) { /* ignore */ }
         }
-        // clear forced timer
         clearTimeout(forcedTimer);
 
-        // if forced already completed, update info but don't re-download or revert UI
+        // If forcedComplete already fired, update UI but do not re-download
         if (forcedComplete) {
           if (data && data.success) {
             if (data.folderUrl) folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
           } else {
-            console.warn('Server error after forced-complete', data);
+            console.warn('Server returned failure after forced success:', data);
           }
-          // unlock UI
-          submitBtn.removeAttribute('disabled');
-          submitBtn.innerHTML = 'Submit';
+          setSubmitting(false);
           window.removeEventListener('message', onMessage);
           return;
         }
 
-        // normal (server finished before 20s)
+        // normal server response before 20s
         window.removeEventListener('message', onMessage);
-        submitBtn.removeAttribute('disabled');
-        submitBtn.innerHTML = 'Submit';
+        setSubmitting(false);
 
         if (data && data.success) {
           statusEl.className = 'status success';
           statusEl.textContent = '✅ Onboarding complete — Serial: ' + (data.serial || 'N/A');
           if (data.folderUrl) folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
-          // generate PDF including server links + also include any local images cached
+
+          // generate PDF with serverResult + any localFiles
           if (!downloadTriggered) {
-            try {
-              generateAndDownloadPDF(formSnapshot, data, localFiles);
+            triggerDownloadPDF(formSnapshot, data, localFiles).then(() => {
               downloadTriggered = true;
-            } catch (pdfErr) {
-              console.error('PDF generation error', pdfErr);
-            }
+            }).catch(err => { console.warn('PDF error', err); });
           }
           try { document.getElementById('empForm').reset(); } catch(e){}
         } else {
@@ -461,8 +505,7 @@
         console.error('message handling error', err);
         clearTimeout(forcedTimer);
         window.removeEventListener('message', onMessage);
-        submitBtn.removeAttribute('disabled');
-        submitBtn.innerHTML = 'Submit';
+        setSubmitting(false);
         statusEl.className = 'status error';
         statusEl.textContent = 'Error reading response';
       }
@@ -476,8 +519,7 @@
     } catch (err) {
       clearTimeout(forcedTimer);
       window.removeEventListener('message', onMessage);
-      submitBtn.removeAttribute('disabled');
-      submitBtn.innerHTML = 'Submit';
+      setSubmitting(false);
       statusEl.className = 'status error';
       statusEl.textContent = 'Submission failed: ' + (err && err.message ? err.message : String(err));
     }
