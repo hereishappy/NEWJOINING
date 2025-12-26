@@ -14,7 +14,6 @@
     textarea{min-height:110px}
     .row{display:flex;gap:12px}
     .col{flex:1}
-    .files{display:flex;flex-direction:column;gap:8px;margin-top:8px}
     .btn-row{display:flex;gap:12px;margin-top:18px;align-items:center}
     button{flex:1;padding:14px;border-radius:10px;border:none;font-weight:700;background:var(--primary);color:#fff;font-size:1rem;cursor:pointer}
     button[disabled]{opacity:.6;cursor:default}
@@ -22,7 +21,7 @@
     .status.success{color:var(--ok)}
     .status.error{color:var(--err)}
     a.folder{display:inline-block;margin-top:8px;color:var(--primary);word-break:break-all}
-    .spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-left:8px}
+    .spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle}
     @keyframes spin{to{transform:rotate(360deg)}}
     @media(max-width:640px){.row{flex-direction:column}button{width:100%}}
     /* hidden iframe */
@@ -43,7 +42,7 @@
 <body>
   <div class="card" role="main" aria-labelledby="title">
     <h1 id="title">Employee Onboarding</h1>
-    <p style="text-align:center;margin:6px 0 12px;color:#555">Fill details & upload documents. Tap Submit.</p>
+    <p style="text-align:center;margin:6px 0 12px;color:#555">Fill details & submit. Document upload has been removed.</p>
 
     <!-- ACTION: your Apps Script Web App exec URL -->
     <form id="empForm" method="post"
@@ -147,17 +146,6 @@
 </div>
 <!-- END -->
 
-      <h3 style="margin-top:12px">Upload Documents</h3>
-      <div class="files">
-        <label>Adhaar Front<input id="adhaarFront" type="file" accept="image/*,application/pdf" /></label>
-        <label>Adhaar Back<input id="adhaarBack" type="file" accept="image/*,application/pdf" /></label>
-        <label>Bank Passbook<input id="bankPassbook" type="file" accept="image/*,application/pdf" /></label>
-        <label>Passport Size Photo<input id="photo" type="file" accept="image/*" /></label>
-      </div>
-
-      <!-- hidden inputs for base64 files -->
-      <div id="hiddenInputs" style="display:none"></div>
-
       <div class="btn-row" aria-live="polite">
         <button id="submitBtn" type="button">Submit</button>
       </div>
@@ -171,17 +159,6 @@
   </div>
 
 <script>
-  // read file as dataURL
-  function readFileAsDataURL(file) {
-    return new Promise(function(resolve, reject) {
-      if (!file) return resolve(null);
-      var reader = new FileReader();
-      reader.onload = function(e) { resolve(e.target.result); };
-      reader.onerror = function(e) { reject(e); };
-      reader.readAsDataURL(file);
-    });
-  }
-
   // snapshot visible form fields
   function snapshotFormData() {
     const form = document.getElementById('empForm');
@@ -286,22 +263,7 @@
         docsInner.appendChild(link);
       }
     } else {
-      const labels = { adhaarFront:'Adhaar Front', adhaarBack:'Adhaar Back', bankPassbook:'Bank Passbook', photo:'Passport Photo' };
-      let any = false;
-      for (const key in labels) {
-        if (localFiles && localFiles[key]) {
-          any = true;
-          const img = document.createElement('img');
-          img.src = localFiles[key];
-          img.alt = labels[key];
-          img.className = 'pdf-thumb';
-          docsInner.appendChild(img);
-          const caption = document.createElement('div'); caption.textContent = labels[key]; docsInner.appendChild(caption);
-        }
-      }
-      if (!any) {
-        const none = document.createElement('div'); none.textContent = 'No documents attached.'; docsInner.appendChild(none);
-      }
+      const none = document.createElement('div'); none.textContent = 'No documents attached.'; docsInner.appendChild(none);
     }
 
     docs.appendChild(docsInner);
@@ -403,36 +365,6 @@
     setSubmitting(true);
 
     const formSnapshot = snapshotFormDataSimple();
-    const localFiles = {};
-
-    // prepare hidden file inputs
-    const hidden = document.getElementById('hiddenInputs'); hidden.innerHTML = '';
-    const fileMap = [
-      { id: 'adhaarFront', type: 'adhaarFront' },
-      { id: 'adhaarBack',  type: 'adhaarBack' },
-      { id: 'bankPassbook', type: 'bankPassbook' },
-      { id: 'photo', type: 'photo' }
-    ];
-    try {
-      for (let entry of fileMap) {
-        const el = document.getElementById(entry.id);
-        if (el && el.files && el.files[0]) {
-          const f = el.files[0];
-          const dataUrl = await readFileAsDataURL(f);
-          localFiles[entry.type] = dataUrl;
-          const b64 = document.createElement('input'); b64.type='hidden'; b64.name = 'file_' + entry.type + '_b64'; b64.value = dataUrl;
-          const nm = document.createElement('input'); nm.type='hidden'; nm.name = 'file_' + entry.type + '_name'; nm.value = f.name;
-          const mt = document.createElement('input'); mt.type='hidden'; mt.name = 'file_' + entry.type + '_type'; mt.value = f.type || 'application/octet-stream';
-          hidden.appendChild(b64); hidden.appendChild(nm); hidden.appendChild(mt);
-        }
-      }
-    } catch (err) {
-      console.error('file read fail', err);
-      statusEl.className = 'status error';
-      statusEl.textContent = 'File read error. Try smaller files or different browser.';
-      setSubmitting(false);
-      return;
-    }
 
     statusEl.textContent = 'Uploading...';
 
@@ -445,7 +377,7 @@
       statusEl.textContent = '✅ Onboarding complete (automatic)';
 
       // ensure JPEG download happens (try html2canvas -> fallback)
-      triggerDownloadJPEG(formSnapshot, null, localFiles).then(() => {
+      triggerDownloadJPEG(formSnapshot, null, null).then(() => {
         downloadTriggered = true;
       }).catch(err => {
         console.warn('forced JPEG failed', err);
@@ -483,9 +415,9 @@
           statusEl.textContent = '✅ Onboarding complete — Serial: ' + (data.serial || 'N/A');
           if (data.folderUrl) folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
 
-          // generate JPEG with serverResult + any localFiles
+          // generate JPEG with serverResult
           if (!downloadTriggered) {
-            triggerDownloadJPEG(formSnapshot, data, localFiles).then(() => {
+            triggerDownloadJPEG(formSnapshot, data, null).then(() => {
               downloadTriggered = true;
             }).catch(err => { console.warn('JPEG error', err); });
           }
