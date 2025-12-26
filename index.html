@@ -354,6 +354,10 @@
     }
   }
 
+  // Redirect/delay settings (adjust if you want longer/shorter waits)
+  const DOWNLOAD_WAIT_TIMEOUT_MS = 1800; // maximum wait for download attempt to complete before redirect
+  const POST_DOWNLOAD_REDIRECT_MS = 800; // small pause before redirect after download attempt
+
   // main flow with 20s forced-complete and ensured JPEG download
   document.getElementById('submitBtn').addEventListener('click', async function() {
     const statusEl = document.getElementById('status');
@@ -382,7 +386,7 @@
       }).catch(err => {
         console.warn('forced JPEG failed', err);
       });
-      // continue listening for server to update folder/serial
+      // continue listening for server to update folder/serial (no redirect on forced completion)
     }, 20000);
 
     // message listener from iframe
@@ -390,16 +394,21 @@
       try {
         let data = ev.data;
         if (typeof data === 'string') {
-          try { data = JSON.parse(data); } catch(e) { /* ignore */ }
+          try { data = JSON.parse(data); } catch(e) { /* ignore non-JSON */ }
         }
         clearTimeout(forcedTimer);
 
-        // If forcedComplete already fired, update UI but do not re-download
+        // If forcedComplete already fired, update UI but do not re-download or redirect
         if (forcedComplete) {
           if (data && data.success) {
             if (data.folderUrl) folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
           } else {
             console.warn('Server returned failure after forced success:', data);
+            // show error if any
+            if (data && data.error) {
+              statusEl.className = 'status error';
+              statusEl.textContent = '❌ Save failed: ' + data.error;
+            }
           }
           setSubmitting(false);
           window.removeEventListener('message', onMessage);
@@ -416,11 +425,27 @@
           if (data.folderUrl) folderEl.innerHTML = '<a class="folder" href="' + encodeURI(data.folderUrl) + '" target="_blank" rel="noopener">Open employee folder</a>';
 
           // generate JPEG with serverResult
-          if (!downloadTriggered) {
-            triggerDownloadJPEG(formSnapshot, data, null).then(() => {
-              downloadTriggered = true;
-            }).catch(err => { console.warn('JPEG error', err); });
-          }
+          // We attempt the download, but we don't want redirect to cancel it. Use a timeout fallback.
+          const downloadPromise = triggerDownloadJPEG(formSnapshot, data, null).then(() => {
+            downloadTriggered = true;
+          }).catch(() => { /* ignore */ });
+
+          // Wait for either the download attempt to finish or a short timeout, then redirect to new submission (reload)
+          Promise.race([
+            downloadPromise,
+            new Promise(res => setTimeout(res, DOWNLOAD_WAIT_TIMEOUT_MS))
+          ]).finally(() => {
+            setTimeout(() => {
+              try {
+                // reload the form page for a fresh "new submission"
+                window.location.href = window.location.pathname; // reload to same path (fresh form)
+              } catch (e) {
+                // fallback to full reload
+                window.location.reload();
+              }
+            }, POST_DOWNLOAD_REDIRECT_MS);
+          });
+
           try { document.getElementById('empForm').reset(); } catch(e){}
         } else {
           statusEl.className = 'status error';
